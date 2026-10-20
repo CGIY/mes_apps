@@ -196,10 +196,25 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
 <style id="boss-heart-feedback">
 .monster-health.is-boss .heart-icon.just-lost{transform-origin:center;animation:boss-heart-break .7s steps(7) both}.final-fighter .heart-icon.just-lost{transform-origin:center;animation:boss-heart-break .7s steps(7) both}@keyframes boss-heart-break{0%{color:#eb624e;opacity:1;transform:scale(1);filter:drop-shadow(0 0 1px #ffbb91)}35%{color:#ffe6ac;transform:scale(1.35) rotate(12deg);filter:drop-shadow(0 0 9px #ff715e)}60%{color:#b54565;transform:scale(.72) rotate(-12deg)}100%{color:#765654;opacity:.7;transform:scale(1);filter:none}}@media(prefers-reduced-motion:reduce){.monster-health.is-boss .heart-icon.just-lost,.final-fighter .heart-icon.just-lost{animation:none!important;color:#765654}}
 </style>
+<style id="shared-dungeon-lobby">
+#donjonLobby[hidden]{display:none!important}#donjonLobby{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 18%,#355547,#112c30 65%,#0b1c23);color:#f1ead1;font:15px/1.45 "Avenir Next",system-ui,sans-serif}.donjon-lobby-card{width:min(100%,480px);padding:clamp(22px,5vw,36px);border:2px solid #a89d75;background:#163b3b;box-shadow:0 18px 60px #06171ba8}.donjon-lobby-card .micro{color:#d6bf8d}.donjon-lobby-card h2{font-size:clamp(30px,8vw,48px);line-height:.98;letter-spacing:-.06em;margin:11px 0}.donjon-lobby-card p{color:#d1dbc4}.donjon-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.donjon-role-grid button{min-height:80px;border:2px solid #638274;background:#244a47;color:#f2e8ca;font-size:30px;font-weight:900}.donjon-role-grid button.selected{border-color:#f2d59d;background:#516b52;box-shadow:inset 0 0 0 2px #173b38}.donjon-role-grid small{display:block;font-size:11px;letter-spacing:.04em;font-weight:700}.donjon-room-actions{display:grid;grid-template-columns:1fr auto;gap:9px}.donjon-room-actions input{min-width:0;min-height:48px;padding:10px;border:1px solid #8ca58a;background:#0d292d;color:#fff;font:700 20px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em}.donjon-room-actions button,.donjon-lobby-card>button{min-height:48px}.donjon-lobby-card #donjonCreate{width:100%;margin-top:10px}.donjon-code-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:15px 0;padding:11px;border:1px solid #b8ab7b;background:#254740}.donjon-code-line[hidden]{display:none}.donjon-code-line strong{font:800 clamp(21px,7vw,31px) ui-monospace,monospace;letter-spacing:.11em}.donjon-code-line button{padding:8px 10px}.donjon-live-status{min-height:25px;font-size:12px;font-weight:700}.donjon-live-status.is-error{color:#f3aa92!important}.donjon-live-badge{font-size:10px;color:#c5d9bc;text-align:right}.donjon-live-ready .donjon-live-badge:before{content:"● ";color:#96d2a5}@media(max-width:420px){.donjon-lobby-card{padding:20px}.donjon-room-actions{grid-template-columns:1fr}.donjon-room-actions button{width:100%}}
+</style>
 </head>
 <body>
+<section id="donjonLobby" aria-label="Connexion à la partie commune">
+  <div class="donjon-lobby-card">
+    <span class="micro">UN DONJON · DEUX TÉLÉPHONES</span>
+    <h2>Qui entre ?</h2>
+    <p id="donjonPresence">Choisissez A ou C sur ce téléphone.</p>
+    <div class="donjon-role-grid" role="group" aria-label="Choix du héros"><button type="button" data-donjon-role="J1">A<small>Agathène</small></button><button type="button" data-donjon-role="J2">C<small>Clémentis</small></button></div>
+    <div class="donjon-room-actions"><input id="donjonCodeInput" type="text" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="CODE À 8 SIGNES" aria-label="Code de partie"><button id="donjonJoin" class="alt-button" type="button">Rejoindre</button></div>
+    <button id="donjonCreate" class="main-button" type="button">Lancer notre partie →</button>
+    <div class="donjon-code-line" id="donjonCodeDisplayWrap" hidden><strong id="donjonCodeDisplay"></strong><button id="donjonCopy" class="alt-button" type="button">Copier le lien</button></div>
+    <p class="donjon-live-status" id="donjonLiveStatus" role="status">Chacun son héros. La même aventure.</p>
+  </div>
+</section>
 <main class="app">
-  <header class="topbar"><div class="brand"><div><h1>LE DONJON</h1></div></div><div class="top-actions"><button class="small-button" id="restart" type="button" hidden>↻ Recommencer</button></div></header>
+  <header class="topbar"><div class="brand"><div><h1>LE DONJON</h1></div></div><div class="top-actions"><span class="donjon-live-badge" id="donjonLiveBadge">En attente</span><button class="small-button" id="restart" type="button" hidden>↻ Recommencer</button></div></header>
   <section class="setup" id="setup" aria-live="polite"></section>
   <section class="game" id="game" hidden>
     <div class="hud" id="hud"></div>
@@ -207,6 +222,8 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
     <section class="stage" id="stage" aria-live="polite" aria-atomic="true"><canvas class="scene-art" id="sceneCanvas" width="320" height="208" aria-hidden="true"></canvas><div class="scene-flame flame-left" aria-hidden="true"></div><div class="scene-flame flame-right" aria-hidden="true"></div><div class="scene-embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="atmosphere-layer" aria-hidden="true"><i class="air-mote" style="--mx:9%;--my:27%;--md:0.0s"></i><i class="air-mote" style="--mx:21%;--my:44%;--md:0.7s"></i><i class="air-mote" style="--mx:33%;--my:61%;--md:1.4s"></i><i class="air-mote" style="--mx:45%;--my:78%;--md:2.0999999999999996s"></i><i class="air-mote" style="--mx:57%;--my:38%;--md:2.8s"></i><i class="air-mote" style="--mx:69%;--my:55%;--md:3.5s"></i><i class="air-mote" style="--mx:81%;--my:72%;--md:4.199999999999999s"></i><span class="ground-mist mist-a"></span><span class="ground-mist mist-b"></span></div><div class="choice-zone" id="choiceZone"></div><div class="stage-caption" id="caption"><h2 id="captionTitle"></h2><p id="captionCopy"></p></div><div class="overlay" id="overlay" hidden><div class="encounter" id="encounter"></div></div></section>
   </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="donjon-live.js?v=1"></script>
 <script>
 (() => {
   'use strict';
@@ -548,7 +565,7 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
     const shade=c.createLinearGradient(0,0,0,H);shade.addColorStop(0,'#09151a55');shade.addColorStop(.45,'#00000000');shade.addColorStop(1,'#070f1877');box(0,0,W,H,shade);
   }
   const startingCoins=5;
-  const state={phase:'intro',players:[],active:0,shared:[],roomGoal:1,roomCap:5,difficulty:null,weaponPicks:[null,null],wheelSpun:false,wheelTimer:null,rollTimer:null,advanceTimer:null,allocationTimer:null,allocationRunning:false,autoNotes:[],challengeTimer:null,challengeDeadline:0,challengeDuration:0,minigame:null,doorSet:[],enemy:null,challenge:null,finalChallenge:null,pinkOffer:null,pinkHistory:{agathe:new Set(),clement:new Set()},result:null,pendingAwards:[],allocationIndex:0,lastAllocation:null,coinTimer:null,coinOutcome:null,history:new Set(),monsterHistory:{small:new Set(),big:new Set(),curse:new Set(),clearing:new Set()},winner:null,teamVictory:false,shopPrices:null,shopPlayer:0,shopReveal:null,doorTimer:null};
+  const state={phase:'intro',players:[],active:0,shared:[],roomGoal:1,roomCap:5,difficulty:null,weaponPicks:[null,null],wheelSpun:false,wheelTimer:null,rollTimer:null,advanceTimer:null,allocationTimer:null,allocationRunning:false,autoNotes:[],challengeTimer:null,challengeDeadline:0,challengeDuration:0,minigame:null,doorSet:[],enemy:null,challenge:null,finalChallenge:null,pinkOffer:null,pinkHistory:{agathe:new Set(),clement:new Set()},result:null,pendingAwards:[],allocationIndex:0,lastAllocation:null,coinTimer:null,coinOutcome:null,history:new Set(),monsterHistory:{small:new Set(),big:new Set(),curse:new Set(),clearing:new Set()},winner:null,teamVictory:false,shopPrices:null,shopPlayer:0,shopReveal:null,doorTimer:null,finalReady:{J1:false,J2:false}};
   const random=n=>Math.floor(Math.random()*n), pick=arr=>arr[random(arr.length)];
   const shuffle=arr=>{const copy=[...arr];for(let i=copy.length-1;i>0;i--){const j=random(i+1);[copy[i],copy[j]]=[copy[j],copy[i]]}return copy};
   const player=()=>state.players[state.active];
@@ -903,6 +920,7 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
   }
   function ambienceGlyph(index){const paths=[['#c7ba91','M2 3h2v2h2V2h4v3h2V3h2v11H2z'],['#a4ca96','M7 8h2v7H7zM4 10h3v2H4zM9 9h3v2H9z'],['#e6a273','M7 1h2v3h2v3h2v2h1v4h-2v2H4v-2H2V9h2V6h2v3h1z'],['#edc867','M4 3h8v2h2v7h-2v2H4v-2H2V5h2z'],['#b9dc91','M7 2h2v5h4v2h-4v5H7V9H3V7h4z'],['#c4b5db','M2 3h12v11H2zM5 1h6v3H5z']];const [fill,d]=paths[index];return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="${fill}" d="${d}"/>${index===0?'<path fill="#36554e" d="M6 9h4v5H6z"/>':index===1?'<path fill="#e5bda0" d="M5 2h6v2h2v4h-2v2H5V8H3V4h2z"/><path fill="#ebdba7" d="M6 4h4v4H6z"/>':index===2?'<path fill="#f3d6a2" d="M7 7h2v2h2v4H5v-3h2z"/>':index===3?'<path fill="#785432" d="M5 5h6v1H5zM5 8h6v1H5zM5 11h6v1H5z"/>':index===4?'<path fill="#f4e9b9" d="M7 4h2v2H7zM4 8h2v2H4zM10 8h2v2h-2z"/>':'<path fill="#7e638e" d="M4 5h8v7H4zM7 6h2v5H7z"/>'}</svg>`}
   function showSetup(){
+    state.phase='setup';
     state.weaponPicks=[null,null];state.wheelSpun=false;state.difficulty=null;state.roomGoal=1;state.roomCap=5;
     const weaponButtons=i=>weapons.map(w=>`<button class="weapon-choice" type="button" data-weapon-player="${i}" data-weapon="${w.id}" aria-pressed="false" aria-label="${escape(w.name)}. ${escape(w.description)}"><span class="weapon-heading"><span class="weapon-icon" aria-hidden="true">${weaponIcon(w.id)}</span><b>${escape(w.name)}</b></span>${weaponDice(w)}</button>`).join('');
     const reel=(id,values)=>`<div class="stone-reel" aria-hidden="true"><div class="reel-track" id="${id}">${Array.from({length:56},(_,i)=>`<div class="reel-item">${id==='dangerTrack'?`<span class="reel-glyph">${ambienceGlyph(i%wheelSegments.length)}</span>`:''}<span>${escape(values[i%values.length])}</span></div>`).join('')}</div></div>`;
@@ -1115,7 +1133,7 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
   }
   function finishGame(winner){cancelAdvance();stopChallengeTimer();state.autoNotes=[];state.allocationRunning=false;state.winner=winner;state.shopPrices??=Object.fromEntries(shopChests.map(chest=>[chest.id,chest.min+random(chest.max-chest.min+1)]));state.players.forEach(p=>p.shopStock??=Object.fromEntries(shopChests.map(chest=>[chest.id,random(2)+1])));state.shopPlayer=0;state.shopReveal=null;state.phase='shop';render()}
   function nextFinal(){
-    cancelAdvance();state.autoNotes=[];resolveAutoPotions();
+    cancelAdvance();state.autoNotes=[];state.finalReady={J1:false,J2:false};resolveAutoPotions();
     if(!state.finalChallenge.hp){livingPlayers().forEach(({p})=>p.finalWon=true);state.teamVictory=livingPlayers().length===2;finishGame(livingPlayers()[0]?.p||null);return}
     if(!livingPlayers().length){finishGame(null);return}
     if(!player().hp)state.active=livingPlayers()[0].index;
@@ -1126,10 +1144,10 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
     if(state.players.every(p=>p.hp===0)){finishGame(null);return}
     const other=1-state.active;if(state.players[other].hp>0)state.active=other;prepareDoors();
   }
-  function restart(){cancelAdvance();if(state.allocationTimer)clearTimeout(state.allocationTimer);state.allocationTimer=null;state.allocationRunning=false;state.autoNotes=[];stopChallengeTimer();if(state.doorTimer)clearTimeout(state.doorTimer);if(state.wheelTimer)clearTimeout(state.wheelTimer);if(state.rollTimer)clearTimeout(state.rollTimer);if(state.coinTimer)clearTimeout(state.coinTimer);state.doorTimer=null;state.wheelTimer=null;state.rollTimer=null;state.coinTimer=null;state.phase='intro';state.players=[];state.active=0;state.shared=[];state.roomGoal=1;state.roomCap=5;state.difficulty=null;state.weaponPicks=[null,null];state.wheelSpun=false;state.doorSet=[];state.enemy=null;state.challenge=null;state.finalChallenge=null;state.minigame=null;state.pinkOffer=null;state.result=null;state.pendingAwards=[];state.allocationIndex=0;state.lastAllocation=null;state.coinOutcome=null;state.history.clear();Object.values(state.pinkHistory).forEach(seen=>seen.clear());Object.values(state.monsterHistory).forEach(seen=>seen.clear());state.winner=null;state.teamVictory=false;state.shopPrices=null;state.shopPlayer=0;state.shopReveal=null;$('stage').classList.remove('is-finished');$('stage').classList.remove('is-opening');$('setup').hidden=false;$('game').hidden=true;$('restart').hidden=true;showIntro()}
+  function restart(){cancelAdvance();if(state.allocationTimer)clearTimeout(state.allocationTimer);state.allocationTimer=null;state.allocationRunning=false;state.autoNotes=[];stopChallengeTimer();if(state.doorTimer)clearTimeout(state.doorTimer);if(state.wheelTimer)clearTimeout(state.wheelTimer);if(state.rollTimer)clearTimeout(state.rollTimer);if(state.coinTimer)clearTimeout(state.coinTimer);state.doorTimer=null;state.wheelTimer=null;state.rollTimer=null;state.coinTimer=null;state.phase='intro';state.players=[];state.active=0;state.shared=[];state.roomGoal=1;state.roomCap=5;state.difficulty=null;state.weaponPicks=[null,null];state.wheelSpun=false;state.doorSet=[];state.enemy=null;state.challenge=null;state.finalChallenge=null;state.minigame=null;state.pinkOffer=null;state.result=null;state.pendingAwards=[];state.allocationIndex=0;state.lastAllocation=null;state.coinOutcome=null;state.history.clear();Object.values(state.pinkHistory).forEach(seen=>seen.clear());Object.values(state.monsterHistory).forEach(seen=>seen.clear());state.winner=null;state.teamVictory=false;state.shopPrices=null;state.shopPlayer=0;state.shopReveal=null;state.finalReady={J1:false,J2:false};$('stage').classList.remove('is-finished');$('stage').classList.remove('is-opening');$('setup').hidden=false;$('game').hidden=true;$('restart').hidden=true;showIntro()}
   $('setup').addEventListener('click',e=>{const weapon=e.target.closest('[data-weapon]');if(weapon){const i=Number(weapon.dataset.weaponPlayer);state.weaponPicks[i]=weapon.dataset.weapon;$('setupError').textContent='';$('setup').querySelectorAll(`[data-weapon-player="${i}"]`).forEach(b=>b.setAttribute('aria-pressed',String(b===weapon)));return}const action=e.target.closest('[data-action]')?.dataset.action;if(action==='setup-start')showSetup();if(action==='spin-wheel')spinWheel();if(action==='save-setup')saveSetup()});
-  $('choiceZone').addEventListener('click',e=>{const door=e.target.closest('[data-door]');if(door)openDoor(Number(door.dataset.door))});
-  $('encounter').addEventListener('click',e=>{const action=e.target.closest('[data-action]')?.dataset.action;if(!action)return;
+  $('game').addEventListener('click',e=>{const door=e.target.closest('[data-door]');if(door)openDoor(Number(door.dataset.door))});
+  $('game').addEventListener('click',e=>{const action=e.target.closest('[data-action]')?.dataset.action;if(!action)return;
     if(action==='shop-player'&&state.phase==='shop'){const index=Number(e.target.closest('[data-owner]').dataset.owner);if(state.players[index]){state.shopPlayer=index;state.shopReveal=null;render()}}else if(action==='shop-buy')buyShopChest(e.target.closest('[data-shop]').dataset.shop);else if(action==='shop-close')closeShop();else if(action==='shop-reopen')reopenShop();else if(action==='erase-item'){const target=e.target.closest('[data-owner]');deleteFinalItem(Number(target.dataset.owner),Number(target.dataset.item))}else if(action==='rps-pick')playRps(e.target.closest('[data-choice]')?.dataset.choice);else if(action==='rps-ready')readyRps();else if(action==='rps-resolve')resolveRps();else if(action.startsWith('ttt-cell-'))playTtt(Number(action.slice(9)));else if(action==='matches-take')takeMatches(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='parity-pick')chooseParity(e.target.closest('[data-value]')?.dataset.value);else if(action==='parity-count')chooseFingers(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='parity-ready')readyParity();else if(action==='rune-hide')hideRunes();else if(action==='rune-pick')chooseRune(e.target.closest('[data-value]')?.dataset.value);else if(action==='coin-pick')chooseCoin(e.target.closest('[data-value]')?.dataset.value);else if(action==='minigame-resolve')resolveNewMinigame();else if(action==='minigame-reset')resetMinigame();
     else if(action==='start-allocation')startAllocation();
     else if(action==='reveal-challenge')revealChallenge();else if(action==='attack')attack();
@@ -1139,6 +1157,55 @@ body,.app,.app button,.app input,.app :is(h1,h2,h3,h4,p,small,b,strong,span,em),
   });
   $('restart').addEventListener('click',()=>{if(window.confirm('Recommencer la partie depuis le début ?'))restart()});
   showIntro();
+  const transient=new Set(['wheelTimer','rollTimer','advanceTimer','allocationTimer','challengeTimer','coinTimer','doorTimer','hideTimer']);
+  window.donjonLive.start({
+    capture(){
+      return {
+        gameState:JSON.parse(JSON.stringify(state,(key,value)=>transient.has(key)?null:value instanceof Set?{__set:[...value]}:value)),
+        view:{setup:$('setup').innerHTML,game:$('game').innerHTML,setupHidden:$('setup').hidden,gameHidden:$('game').hidden,restartHidden:$('restart').hidden,gameClass:$('game').className,stageClass:$('stage').className}
+      };
+    },
+    apply(snapshot,host){
+      const restored=JSON.parse(JSON.stringify(snapshot.gameState||{}),(key,value)=>value&&Array.isArray(value.__set)?new Set(value.__set):value);
+      if(state.challengeTimer)clearInterval(state.challengeTimer);
+      Object.assign(state,restored);
+      if(state.winner)state.winner=state.players.find(p=>p.name===state.winner.name)||state.winner;
+      const view=snapshot.view||{};
+      $('setup').innerHTML=view.setup||'';
+      $('game').innerHTML=view.game||'';
+      $('setup').hidden=Boolean(view.setupHidden);
+      $('game').hidden=Boolean(view.gameHidden);
+      $('restart').hidden=Boolean(view.restartHidden);
+      $('game').className=view.gameClass||'game';
+      if($('stage'))$('stage').className=view.stageClass||'stage';
+      if(state.players.length&&$('sceneCanvas'))paintScene(state.difficulty,state.players[state.active]?.rooms+state.players[state.active]?.detours||0);
+      if(host&&state.challengeDeadline&&['combat','final-challenge'].includes(state.phase))state.challengeTimer=setInterval(tickChallengeTimer,100);
+      if(!host&&state.challengeDeadline)updateChallengeTimer();
+    },
+    canAct(actor,target){
+      const actorIndex=actor==='J1'?0:1,action=target.dataset.action||'';
+      if(target.id==='restart')return actor===window.donjonLive.hostRole;
+      if(state.phase==='intro')return actor===window.donjonLive.hostRole;
+      if(state.phase==='setup')return target.dataset.weapon!==undefined?Number(target.dataset.weaponPlayer)===actorIndex:actor===window.donjonLive.hostRole;
+      if(action==='shop-player')return Number(target.dataset.owner)===actorIndex;
+      if(action==='erase-item')return Number(target.dataset.owner)===actorIndex;
+      if(state.phase==='shop'&&action==='shop-buy')return state.shopPlayer===actorIndex;
+      if(['shop-close','shop-reopen','restart'].includes(action))return actor===window.donjonLive.hostRole;
+      if(state.phase==='final-challenge'&&action==='final-roll'&&livingPlayers().length===2)return true;
+      const m=state.minigame;
+      if(m){
+        if(['rps','parity'].includes(m.kind)&&['handoff','playing-second','second-count'].includes(m.status))return actorIndex===1-state.active;
+        if(['ttt','matches'].includes(m.kind)&&['ttt-cell-','matches-take'].some(prefix=>action.startsWith(prefix)))return actorIndex===(state.active+m.turn)%2;
+      }
+      return actorIndex===state.active;
+    },
+    pairAction(target){return state.phase==='final-challenge'&&target.dataset.action==='final-roll'&&livingPlayers().length===2},
+    markReady(actor){state.finalReady??={J1:false,J2:false};state.finalReady[actor]=true},
+    bothReady(){return Boolean(state.finalReady?.J1&&state.finalReady?.J2)},
+    clearReady(){state.finalReady={J1:false,J2:false}},
+    readyLabel(){return state.finalReady?.J1||state.finalReady?.J2?`${state.finalReady.J1?'A prêt':'A attend'} · ${state.finalReady.J2?'C prêt':'C attend'}`:''}
+  });
+  setInterval(()=>{if(window.donjonLive.role&&!window.donjonLive.isHost&&state.challengeDeadline)updateChallengeTimer()},250);
 })();
 </script>
 </body>
