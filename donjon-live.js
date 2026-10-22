@@ -245,6 +245,12 @@
       }
       engine.clearReady();
     }
+    if (!isHost() && target.matches('.door[data-door]') && window.donjonHandleDoorTap) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.donjonHandleDoorTap(target);
+      return;
+    }
     if (!isHost()) {
       event.preventDefault();
       event.stopImmediatePropagation();
