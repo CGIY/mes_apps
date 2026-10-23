@@ -19,7 +19,7 @@ script = script.slice(0, listener) + `
   paintScene=()=>{};
   globalThis.audit={state,wheelSegments,wheelLabels,zoneBosses,difficulties,monsters,monsterPools,
     prepareDoors,openDoor,probeDoor,drawBoosterCards,grantBooster,slotRarities,
-    selectBoosterCard,placeBoosterCard,finishDeckTurn,readyForFinal};
+    selectBoosterCard,placeBoosterCard,finishDeckTurn,readyForFinal,monsterHearts};
 })();`;
 
 const classList = { add(){}, remove(){} };
@@ -111,6 +111,7 @@ for (let i=0;i<1000;i++) {
 }
 assert(empty>0 && full>0 && curse>0,'all booster outcomes can occur');
 assert.equal(a.slotRarities.join(','),'common,common,rare,legendary');
+assert(a.monsterHearts(1,1).includes('Monstre : 1 point de vie sur 1'));
 a.state.phase='deck-build';a.state.deckTurn=0;
 a.state.players[0].hand=[{id:'rare',name:'Rare',rarity:'rare'}];
 a.selectBoosterCard(0);a.placeBoosterCard(0);
