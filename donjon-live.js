@@ -44,7 +44,7 @@
     lobby.hidden = connected && ready;
     roomDisplayWrap.hidden = !connected;
     roomDisplay.textContent = code;
-    presence.textContent = !connected ? "" : ready ? "Deux héros. Un Donjon." : `Code ${code} · l’autre arrive…`;
+    presence.textContent = !connected ? "Choisissez A ou C sur ce téléphone." : ready ? "Deux héros. Un Donjon." : `Code ${code} · l’autre arrive…`;
     badge.textContent = !connected ? "En attente" : ready ? engine?.readyLabel() || `${role === "J1" ? "A" : "C"} · liés` : "L’autre arrive…";
     document.documentElement.classList.toggle("donjon-live-ready", connected && ready);
     if (connected && ready && !busy) say("À deux, dans la même salle.");

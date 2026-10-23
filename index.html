@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0c1424">
+<meta name="theme-color" content="#182022">
 <title>LE DONJON</title>
 <style>
 :root{--bg:#182022;--panel:#202b2c;--raised:#2b3838;--edge:#596861;--ink:#eee6d4;--muted:#b9b8a9;--gold:#c2a578;--sage:#8caa88;--red:#d88978;--blue:#8ba7b7;--black:#0e1415}
@@ -227,19 +227,18 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
 @keyframes omen-vapour{to{transform:translate(15px,-9px) scale(1.25);opacity:.12}}@keyframes fall-lines{to{transform:translateY(18px);opacity:.25}}
 @media(prefers-reduced-motion:reduce){.door-omen i,.door-omen:before,.door-omen:after,.fall-lines{animation:none!important}}
 </style>
-<link rel="stylesheet" href="art-direction.css?v=4">
 </head>
 <body>
 <section id="donjonLobby" aria-label="Connexion à la partie commune">
   <div class="donjon-lobby-card">
     <span class="micro">UN DONJON · DEUX TÉLÉPHONES</span>
     <h2>Qui entre ?</h2>
-    <p id="donjonPresence"></p>
+    <p id="donjonPresence">Choisissez A ou C sur ce téléphone.</p>
     <div class="donjon-role-grid" role="group" aria-label="Choix du héros"><button type="button" data-donjon-role="J1">A<small>Agathène</small></button><button type="button" data-donjon-role="J2">C<small>Clémentis</small></button></div>
     <div class="donjon-room-actions"><input id="donjonCodeInput" type="text" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="CODE À 8 SIGNES" aria-label="Code de partie"><button id="donjonJoin" class="alt-button" type="button">Rejoindre</button></div>
     <button id="donjonCreate" class="main-button" type="button">Lancer notre partie →</button>
     <div class="donjon-code-line" id="donjonCodeDisplayWrap" hidden><strong id="donjonCodeDisplay"></strong><button id="donjonCopy" class="alt-button" type="button">Copier le lien</button></div>
-    <p class="donjon-live-status" id="donjonLiveStatus" role="status"></p>
+    <p class="donjon-live-status" id="donjonLiveStatus" role="status">Chacun son héros. La même aventure.</p>
   </div>
 </section>
 <main class="app">
@@ -253,7 +252,6 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="donjon-live.js?v=1"></script>
-<script src="creature-art.js?v=6"></script>
 <script>
 (() => {
   'use strict';
@@ -487,7 +485,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
       for(const x of [6,12,20,25]){box(x,23,3,6,k);box(x,27,4,2,'#b46a53')}
       box(27,18,3,3,'#a85b4d');box(29,13,2,6,'#bf7355');box(28,10,3,4,'#efb66f');box(29,8,1,4,'#f8d797');box(12,20,2,2,'#ee9763');box(20,21,2,1,'#ee9763');
     }
-    return window.DonjonArt.monster(id,finalBoss().name,`zone-boss boss-${id} idle-pulse`);
+    return `<svg class="pixel-monster zone-boss boss-${id} idle-pulse" viewBox="0 0 64 64" shape-rendering="crispEdges" role="img" aria-label="${escape(finalBoss().name)}">${finePixels(cells)}</svg>`;
   }
   function entryGiftMarkup(){return (state.finalChallenge.entryDrops||[]).map(({index,item})=>`<section class="entry-gift ${item.kind==='pink'?'rose-gift':''}"><span class="micro">${escape(state.players[index].name)} · découverte</span>${item.kind==='pink'?`<span class="gift-chest">${pinkChestSprite()}</span>`:''}${dropMarkup(item)}</section>`).join('')}
   function finalRoster(losses=[]){return `<div class="final-roster">${state.players.map((p,i)=>`<article class="final-fighter ${p.hp?'':'is-ko'}"><b>${escape(p.name)}</b><div class="health" aria-label="${p.hp} cœurs">${Array.from({length:p.max},(_,j)=>heart(j<p.hp,losses.some(loss=>loss.index===i&&j>=p.hp&&j<p.hp+loss.damage)?'just-lost':'')).join('')}</div><span class="duo-weapon">${weaponIcon(p.weapon)}<span>${escape(weapons.find(w=>w.id===p.weapon).name)}</span></span></article>`).join('')}</div>`}
@@ -513,7 +511,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     theatre:{label:'LE THÉÂTRE DES MARIONNETTES',boss:.17,twoHp:.42,surprises:['cache','cache','wardrobe','wardrobe','trap','curse']}
   };
   const wheelSegments=['easy','normal','hard','gold','clearing','castle','sanctuary','returning','lighthouse','theatre'];
-  const wheelLabels=['Le Donjon','Les jardins','Vestibule des enfers','La chambre d’or','La clairière','Le château','Sanctuaire des deux vérités','Labyrinthe des portes revenantes','Le phare englouti','Le théâtre des marionnettes'];
+  const wheelLabels=['Le Donjon','Les jardins','Vestibule des enfers','La chambre d’or','La clairière','Le château','Sanctuaire des deux vérités','Portes revenantes','Le phare englouti','Théâtre des marionnettes'];
   // Miniatures originales en pixels. Les récits sont de courts résumés des archétypes de D&D.
   const monsters=[
     {id:'goblin',name:'Gobelin',trait:'Ruse des tunnels',lore:'Petit pillard rusé : il préfère les embuscades, les pièges et les passages étroits.',rows:['..gggggg....','.gggggggg...','gggggggggg..','ggwggggwgg..','gwwgGggGwwg.','gwwkGkkGwwg.','..ggrrgg....','..gggggg....','...gttg.....','..ggttgg....','..gk..kg....','..kk..kk....']},
@@ -566,13 +564,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     theatre:['rustpuppet','blindprompter','threadspider']
   };
   const palette={g:'#62875d',G:'#a0bd78',k:'#182024',w:'#f0e7ce',r:'#bd655d',o:'#df9a55',p:'#746488',y:'#d6bb76',s:'#d8d1b8',t:'#89694f',b:'#406481',c:'#5eafaa',C:'#9bd4c4'};
-  function illustratedFigure(cells,size,classes,label,id){
-    const tag=`fig-${id}`,scale=size===64?1:2,extent=size===64?40:24;
-    const glints=size===64?[[8,7],[29,4],[37,17]]:[[4,5],[19,8],[8,18]];
-    const body=cells.map(({x,y,color})=>`<circle cx="${x*scale+scale/2}" cy="${y*scale+scale/2}" r="${scale*.91}" fill="${color}"/>`).join('');
-    return `<svg class="pixel-monster illustrated-monster ${classes}" viewBox="0 0 ${extent} ${extent}" role="img" aria-label="${escape(label)}"><defs><filter id="${tag}-soft" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="${size===64?.67:.54}" result="wash"/><feColorMatrix in="wash" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 9 -3.2"/></filter><linearGradient id="${tag}-shine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff5dc" stop-opacity=".7"/><stop offset=".5" stop-color="#ffe7ad" stop-opacity=".08"/><stop offset="1" stop-color="#08182b" stop-opacity=".6"/></linearGradient></defs><g class="illustrated-body" filter="url(#${tag}-soft)">${body}</g><ellipse cx="${extent*.41}" cy="${extent*.29}" rx="${extent*.23}" ry="${extent*.09}" fill="url(#${tag}-shine)" opacity=".52" transform="rotate(-18 ${extent*.41} ${extent*.29})"/>${glints.map(([x,y],i)=>`<path d="M${x} ${y-1.2}v2.4m-1.2-1.2h2.4" fill="none" stroke="${i===1?'#c4f0dd':'#f7d8a1'}" stroke-width=".45" stroke-linecap="round" opacity="${i===2?.5:.82}"/>`).join('')}</svg>`;
-  }
-  function pixelSprite(id){const m=monsters.find(item=>item.id===id);if(!m)return '';const idle={goblin:'idle-sneak',kobold:'idle-sneak',hag:'idle-sneak',skeleton:'idle-rattle',scarecrow:'idle-rattle',beholder:'idle-hover',lich:'idle-hover',banshee:'idle-hover',shadow:'idle-hover',mephit:'idle-hover',illithid:'idle-hover',ooze:'idle-wobble',zombie:'idle-wobble',troll:'idle-wobble',minotaur:'idle-wobble',owlbear:'idle-wobble',bulette:'idle-wobble',mimic:'idle-pulse',myconid:'idle-pulse',dragon:'idle-pulse',stonegiant:'idle-pulse',vargouille:'idle-pulse'}[id]||'idle-float';return window.DonjonArt.monster(id,m.name,`monster-${id} ${idle}`)}
+  function pixelSprite(id){const m=monsters.find(item=>item.id===id);if(!m)return '';const idle={goblin:'idle-sneak',kobold:'idle-sneak',hag:'idle-sneak',skeleton:'idle-rattle',scarecrow:'idle-rattle',beholder:'idle-hover',lich:'idle-hover',banshee:'idle-hover',shadow:'idle-hover',mephit:'idle-hover',illithid:'idle-hover',ooze:'idle-wobble',zombie:'idle-wobble',troll:'idle-wobble',minotaur:'idle-wobble',owlbear:'idle-wobble',bulette:'idle-wobble',mimic:'idle-pulse',myconid:'idle-pulse',dragon:'idle-pulse',stonegiant:'idle-pulse',vargouille:'idle-pulse'}[id]||'idle-float';const pixels=[];m.rows.forEach((row,y)=>[...row].forEach((code,x)=>{if(palette[code])pixels.push({x,y,color:palette[code]})}));return `<svg class="pixel-monster monster-${id} ${idle}" style="--idle-delay:-${(monsters.findIndex(item=>item.id===id)%7)*.17}s" viewBox="0 0 24 24" shape-rendering="crispEdges" role="img" aria-label="${escape(m.name)}">${finePixels(pixels)}</svg>`}
   const sceneDepth=(room,cap)=>Math.max(0,Math.min(1,room/Math.max(1,cap-1)));
   function paintScene(level='normal',room=0){
     const depth=sceneDepth(room,state.roomCap);$('stage').style.setProperty('--dungeon-depth',depth);
@@ -661,7 +653,8 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     c.save();c.setTransform(1,0,0,1,0,0);for(let i=0;i<400;i++){const x=Math.floor(rand()*640),y=296+Math.floor(rand()*116);c.fillStyle=level==='hard'?'#ffc68745':'#d9e3a23b';c.fillRect(x,y,1,1)}if(level==='normal'){for(let i=0;i<130;i++){const x=Math.floor(rand()*640),y=279+Math.floor(rand()*120);c.fillStyle=['#3d785b','#88b46d','#d6b881','#f5c8b1'][Math.floor(rand()*4)];c.fillRect(x,y,1,2);if(i%7===0)c.fillRect(x-1,y-1,3,1)}}c.restore();
     const shade=c.createLinearGradient(0,0,0,H);shade.addColorStop(0,'#09151a55');shade.addColorStop(.45,'#00000000');shade.addColorStop(1,'#070f1877');box(0,0,W,H,shade);
   }
-  const state={phase:'intro',players:[],active:0,shared:[],roomGoal:1,roomCap:5,difficulty:null,weaponPicks:[null,null],wheelSpun:false,wheelTimer:null,rollTimer:null,advanceTimer:null,allocationTimer:null,allocationRunning:false,autoNotes:[],challengeTimer:null,challengeDeadline:0,challengeDuration:0,minigame:null,doorSet:[],doorProbe:null,enemy:null,challenge:null,finalChallenge:null,pinkOffer:null,pinkHistory:{agathe:new Set(),clement:new Set()},result:null,pendingAwards:[],allocationIndex:0,lastAllocation:null,coinTimer:null,coinOutcome:null,history:new Set(),monsterHistory:{small:new Set(),big:new Set(),curse:new Set(),clearing:new Set(),sanctuary:new Set(),returning:new Set(),lighthouse:new Set(),theatre:new Set()},winner:null,teamVictory:false,shopPrices:null,shopPlayer:0,shopReveal:null,doorTimer:null,finalReady:{J1:false,J2:false},nextBoosterId:1,boosterTurn:0,boosterReveal:null,boosterTimer:null,deckTurn:0,selectedCard:null,lastPlaced:null};
+  const startingCoins=5;
+  const state={phase:'intro',players:[],active:0,shared:[],roomGoal:1,roomCap:5,difficulty:null,weaponPicks:[null,null],wheelSpun:false,wheelTimer:null,rollTimer:null,advanceTimer:null,allocationTimer:null,allocationRunning:false,autoNotes:[],challengeTimer:null,challengeDeadline:0,challengeDuration:0,minigame:null,doorSet:[],doorProbe:null,enemy:null,challenge:null,finalChallenge:null,pinkOffer:null,pinkHistory:{agathe:new Set(),clement:new Set()},result:null,pendingAwards:[],allocationIndex:0,lastAllocation:null,coinTimer:null,coinOutcome:null,history:new Set(),monsterHistory:{small:new Set(),big:new Set(),curse:new Set(),clearing:new Set(),sanctuary:new Set(),returning:new Set(),lighthouse:new Set(),theatre:new Set()},winner:null,teamVictory:false,shopPrices:null,shopPlayer:0,shopReveal:null,doorTimer:null,finalReady:{J1:false,J2:false}};
   const random=n=>Math.floor(Math.random()*n), pick=arr=>arr[random(arr.length)];
   const shuffle=arr=>{const copy=[...arr];for(let i=copy.length-1;i>0;i--){const j=random(i+1);[copy[i],copy[j]]=[copy[j],copy[i]]}return copy};
   const player=()=>state.players[state.active];
@@ -673,11 +666,12 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   const pinkProfile=(index=state.active)=>index===0?'agathe':'clement';
   function drawPink(index=state.active){const profile=pinkProfile(index),deck=pinkDecks[profile],seen=state.pinkHistory[profile],available=deck.filter(item=>!seen.has(item.name));if(!available.length)seen.clear();const selected=pick(available.length?available:deck);seen.add(selected.name);return {...selected,kind:'pink'}}
   function chestSprite(kind='pink'){
+    const rows=['............','..LLLLLLLL..','.LPPPPPPPPL.','LLPPPPPPPPLL','LPPPPPPPPPPL','LLLLLLLLLLLL','LPPPPYYPPPPL','LPPPPYYPPPPL','LPPPPPPPPPPL','LLLLLLLLLLLL','..KK....KK..','............'];
     const colors=kind==='pink'?{L:'#f3b4d2',P:'#ba6f9c',Y:'#f8d589',K:'#4b2e47'}:{L:'#edcb80',P:'#92643f',Y:'#ffe598',K:'#4c342a'};
+    const draw=(start,end)=>{const cells=[];rows.slice(start,end).forEach((row,index)=>[...row].forEach((code,x)=>{if(colors[code])cells.push({x,y:start+index,color:colors[code]})}));return finePixels(cells)};
     const vfx=kind==='pink'?'<span class="chest-vfx" aria-hidden="true"><i class="fire fire-a"></i><i class="fire fire-b"></i><i class="fire fire-c"></i><i class="ash ash-a"></i><i class="ash ash-b"></i><i class="ash ash-c"></i><i class="ash ash-d"></i><i class="ash ash-e"></i></span>':'';
     const burst=kind==='pink'?`<span class="chest-opening-burst" aria-hidden="true">${Array.from({length:12},(_,i)=>`<i style="--sx:${Math.round(Math.cos(i*Math.PI/6)*65)}px;--sy:${Math.round(Math.sin(i*Math.PI/6)*40)-30}px;--sd:${i%3*.035}s"></i>`).join('')}</span>`:'';
-    return `${vfx}${burst}<span class="pixel-monster chest-sprite painted-chest" role="img" aria-label="${kind==='pink'?'Coffre rose enchanté':'Coffre au trésor'}" style="--atlas-x:${kind==='pink'?'100%':'50%'};--atlas-y:100%"></span>`;
-    return `${vfx}${burst}<svg class="pixel-monster chest-sprite illustrated-chest" viewBox="0 0 120 110" role="img" aria-label="${kind==='pink'?'Coffre rose enchanté':'Coffre au trésor'}"><defs><linearGradient id="chest-${kind}-front" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${colors.L}"/><stop offset=".55" stop-color="${colors.P}"/><stop offset="1" stop-color="${colors.K}"/></linearGradient><linearGradient id="chest-${kind}-metal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0bd"/><stop offset=".52" stop-color="${colors.Y}"/><stop offset="1" stop-color="#99714e"/></linearGradient></defs><ellipse cx="60" cy="101" rx="49" ry="8" fill="#0a1c2b" opacity=".5"/><g class="chest-glow"><ellipse cx="60" cy="54" rx="44" ry="26" fill="${colors.Y}" opacity=".27"/></g><g class="chest-base"><path d="M14 48Q60 42 106 48L101 91Q60 103 19 91Z" fill="url(#chest-${kind}-front)" stroke="${colors.K}" stroke-width="5"/><path d="M19 58Q60 65 101 58M24 84Q60 92 96 84" fill="none" stroke="url(#chest-${kind}-metal)" stroke-width="4"/><path d="M33 57v33m54-33v33" stroke="${colors.Y}" stroke-width="4" opacity=".7"/><path d="M51 60h18v17q-9 8-18 0z" fill="url(#chest-${kind}-metal)" stroke="${colors.K}" stroke-width="2"/><circle cx="60" cy="68" r="3" fill="${colors.K}"/></g><g class="chest-lid"><path d="M12 46Q13 20 60 17q47 3 48 29v12Q60 68 12 58Z" fill="url(#chest-${kind}-front)" stroke="${colors.K}" stroke-width="5"/><path d="M16 43Q60 52 104 43M28 29q32-15 64 0M18 54q42 10 84 0" fill="none" stroke="url(#chest-${kind}-metal)" stroke-width="4"/><path d="M60 20v41" stroke="${colors.Y}" stroke-width="5" opacity=".75"/><path d="M27 41q24-17 48-14" fill="none" stroke="#fff3d6" stroke-width="2" opacity=".48"/></g></svg>`
+    return `${vfx}${burst}<svg class="pixel-monster chest-sprite" viewBox="0 0 24 24" shape-rendering="crispEdges" role="img" aria-label="${kind==='pink'?'Coffre rose enchanté':'Coffre au trésor'}"><g class="chest-glow"><rect x="4" y="10" width="16" height="4" fill="${colors.Y}" opacity=".75"/></g><g class="chest-base">${draw(6,12)}</g><g class="chest-lid">${draw(0,6)}</g></svg>`
   }
   const pinkChestSprite=()=>chestSprite('pink');
   function craftedWeapon(id){
@@ -702,18 +696,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     }
     return `<svg class="weapon-pixel" viewBox="0 0 64 64" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true">${finePixels(cells)}</svg>`;
   }
-  function illustratedWeapon(id){
-    const shapes={
-      sword:`<path d="M73 13 83 7 87 11 80 22 48 64 41 57Z" fill="url(#weapon-${id}-steel)" stroke="#173544" stroke-width="3"/><path d="M80 14 46 58" fill="none" stroke="#fff8dd" stroke-width="2.5" opacity=".8"/><path d="M27 55q13-16 30-5l-3 7q-13-6-22 6z" fill="url(#weapon-${id}-gold)" stroke="#573d3e" stroke-width="3"/><path d="m42 58-20 23 6 6 20-24z" fill="#745047" stroke="#352e36" stroke-width="3"/><path d="m24 79 8 6m-2-11 8 6m-3-11 8 6" stroke="#e6c28c" stroke-width="3"/><path d="m22 78-7 9 11 8 8-8z" fill="url(#weapon-${id}-gold)" stroke="#573d3e" stroke-width="3"/><path d="M43 51q8-1 9 6-5 6-10 0z" fill="#73cbbb" stroke="#e9dab1" stroke-width="2"/>`,
-      bow:`<path d="M25 10q42 14 41 40t-41 40" fill="none" stroke="#203e43" stroke-width="13" stroke-linecap="round"/><path d="M25 10q42 14 41 40t-41 40" fill="none" stroke="url(#weapon-${id}-gold)" stroke-width="8" stroke-linecap="round"/><path d="M26 12 20 50 26 88" fill="none" stroke="#f0e8ce" stroke-width="2.5"/><path d="M19 50 80 50" stroke="#d9c59b" stroke-width="3"/><path d="m76 43 14 7-14 7 3-7z" fill="url(#weapon-${id}-steel)" stroke="#284454" stroke-width="2"/><path d="m25 45-11-7m11 12-13-2m13 2-11 8" fill="none" stroke="#dfaa79" stroke-width="3" stroke-linecap="round"/><path d="M54 42q7 8 0 16" fill="none" stroke="#976348" stroke-width="8" stroke-linecap="round"/><path d="M32 17q20 11 27 27M32 83q20-11 27-27" fill="none" stroke="#fff0bd" stroke-width="2" opacity=".6"/><circle cx="60" cy="50" r="3" fill="#b3e4d5"/>`,
-      axe:`<path d="m37 82 30-64 7 4-30 65z" fill="#745047" stroke="#2c3039" stroke-width="3"/><path d="m43 74 7 3m-4-8 7 3m-3-9 7 3" stroke="#e3bd86" stroke-width="3"/><path d="M61 27Q34 15 11 35q15 13 1 33 30 7 54-29z" fill="url(#weapon-${id}-steel)" stroke="#1b3948" stroke-width="3.5"/><path d="M19 36q24-13 44-5M20 62q22 3 41-21" fill="none" stroke="#f5f0d8" stroke-width="2.4" opacity=".7"/><path d="M62 25q13 1 20 11l-8 8-14-5z" fill="url(#weapon-${id}-gold)" stroke="#5b4241" stroke-width="3"/><path d="m69 31 5 3-3 4-6-2z" fill="#73cbbb"/><path d="m35 84 10 5 6-9-10-4z" fill="url(#weapon-${id}-gold)" stroke="#5b4241" stroke-width="3"/>`,
-      wand:`<path d="m23 84 48-56 7 7-47 57z" fill="#6f534b" stroke="#29343b" stroke-width="3"/><path d="m30 81 45-53" stroke="#e7bd89" stroke-width="3" opacity=".85"/><path d="M23 82q-4 6 3 11t11-3l-6-8z" fill="url(#weapon-${id}-gold)" stroke="#514347" stroke-width="3"/><path d="M52 47q9 0 13 9m-23 2q5 2 8 9" fill="none" stroke="#e7c68e" stroke-width="4" stroke-linecap="round"/><path d="m73 8 8 14 14 8-14 8-8 14-8-14-14-8 14-8z" fill="#a4efe0" stroke="#e8d4a2" stroke-width="3"/><path d="m73 15 4 11 10 4-10 3-4 11-4-11-10-3 10-4z" fill="#ecfff0" opacity=".85"/><circle cx="73" cy="30" r="4" fill="#fff9dc"/><path d="M42 19v9m-5-4h10M90 8v9m-5-4h10M39 35v6m-3-3h6" stroke="#b8e9dc" stroke-width="2" stroke-linecap="round"/>`
-    };
-    return `<svg class="weapon-pixel illustrated-weapon" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="weapon-${id}-steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7f3db"/><stop offset=".46" stop-color="#a6d5d1"/><stop offset="1" stop-color="#476f85"/></linearGradient><linearGradient id="weapon-${id}-gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0be"/><stop offset=".52" stop-color="#d8aa68"/><stop offset="1" stop-color="#805542"/></linearGradient></defs>${shapes[id]||shapes.sword}</svg>`;
-  }
   function weaponIcon(id){
-    const x={sword:'0%',bow:'50%',axe:'100%',wand:'0%'}[id]||'0%',y=id==='wand'?'100%':'0%';
-    return `<span class="weapon-pixel painted-weapon" aria-hidden="true" style="--atlas-x:${x};--atlas-y:${y}"></span>`;
     if(id==='bow'||id==='hammer')return craftedWeapon(id);
     const colors={K:'#142026',S:'#aebcc1',H:'#f4e7c7',G:'#d1a65e',W:'#926844',T:'#5a4035',P:'#bd8fc5',C:'#7ad6cf',R:'#db8f64'},pixels=[];
     const add=(x,y,w,h,c)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)pixels.push({x:x+i,y:y+j,color:colors[c]})};
@@ -826,13 +809,8 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   }
   function itemArt(item){
     const name=typeof item==='string'?item:item.name,key=typeof item==='string'?item:`${item.kind||''}:${name}`,motif=artMotif(item);
-    if(typeof item==='object'&&item.kind==='potion'){
-      const cell={heal:0,focus:1,revive:2,resurrect:3}[item.effect]??0;
-      return `<span class="item-pixel painted-potion" role="img" aria-label="${escape(name)}" style="--atlas-x:${cell%2?'100%':'0%'};--atlas-y:${cell>1?'100%':'0%'}"></span>`;
-    }
     let seed=2166136261;for(const char of key)seed=Math.imul(seed^char.charCodeAt(0),16777619)>>>0;
     const pairs=[['#8cad83','#526f5b'],['#cf9c74','#92634e'],['#d68ea9','#925b78'],['#9c9bc7','#626b99'],['#8cbfc0','#4d858c'],['#ccba7b','#8e7b4b']],pair=pairs[seed%pairs.length];
-    return window.DonjonArt.item(motif,name,pair,seed);
     const colors={a:pair[0],b:pair[1],h:'#f3e1b2',w:'#c5cdb5',g:'#b79c62',p:'#bd85a2',k:'#1b2930'};
     const cells=[];itemMotifs[motif].forEach((row,y)=>[...row].forEach((code,x)=>{if(colors[code])cells.push({x:x+4,y:y+4,color:colors[code]})}));
     const art=finePixels(cells);
@@ -921,45 +899,14 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   function resolveRps(){const m=state.minigame;if(!m||m.kind!=='rps'||m.status!=='reveal')return;if(m.winner===0)winMinigame();else failChallenge('Défi perdu')}
   function playTtt(index){const m=state.minigame;if(!m||m.kind!=='ttt'||m.status!=='playing'||!Number.isInteger(index)||index<0||index>8||m.board[index]||!['combat','final-challenge'].includes(state.phase)||!checkChallengeTime())return;const turn=m.turn,mark=turn===0?'X':'O';m.board[index]=mark;const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];if(wins.some(line=>line.every(cell=>m.board[cell]===mark))){if(turn===0)winMinigame();else failChallenge('Défi perdu');return}if(m.board.every(Boolean)){m.status='draw';m.remainingMs=pauseDrawClock();render();return}m.turn=1-turn;render()}
   function pickMonster(kind){const pool=monsters.filter(m=>monsterPools[kind].includes(m.id)),seen=state.monsterHistory[kind]??(state.monsterHistory[kind]=new Set());const unseen=pool.filter(m=>!seen.has(m.id));if(!unseen.length)seen.clear();const monster=pick(unseen.length?unseen:pool);seen.add(monster.id);return monster}
-  function heart(full=true,extraClass=''){return `<svg class="heart-icon ${full?'full':''} ${extraClass}" viewBox="0 0 24 24" role="img" aria-hidden="true"><path fill="currentColor" d="M12 21.1 3.5 12.8C-1.6 7.8 4.9.4 10.5 4.7L12 6l1.5-1.3C19.1.4 25.6 7.8 20.5 12.8Z"/><path d="M6.3 7.5c1-1.1 2.4-1.1 3.2-.4" fill="none" stroke="#fff8df" stroke-linecap="round" stroke-width="1.2" opacity=".64"/></svg>`}
+  function heart(full=true,extraClass=''){return `<svg class="heart-icon ${full?'full':''} ${extraClass}" viewBox="0 0 24 24" role="img" aria-hidden="true"><path fill="currentColor" d="M3 4h6v2h2v2h2V6h2V4h6v2h2v6h-2v2h-2v2h-2v2h-2v2h-2v2h-2v-2H9v-2H7v-2H5v-2H3v-2H1V6h2z"/></svg>`}
   function battleDie(value,rolling=false){const faces={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]},pips=new Set(rolling?[1,2,3,4,5,6,7,8,9]:faces[value]);return `<div class="battle-die ${rolling?'rolling':''}" role="img" aria-label="${rolling?'Dé en train de rouler':`Dé : ${value}`}">${Array.from({length:9},(_,i)=>`<span class="pip ${pips.has(i+1)?'':'empty'}"></span>`).join('')}</div>`}
-  function monsterHearts(hp,max,boss=false,recentDamage=0){return `<div class="monster-health ${boss?'is-boss':''}" role="img" aria-label="Monstre : ${hp} point${hp>1?'s':''} de vie sur ${max}"><span class="micro">PV DU MONSTRE</span><div class="monster-hearts">${Array.from({length:max},(_,i)=>heart(i<hp,boss&&i>=hp&&i<hp+recentDamage?'just-lost':'')).join('')}</div></div>`}
+  function monsterHearts(hp,max,boss=false,recentDamage=0){return `<div class="monster-health ${boss?'is-boss':''}" role="img" aria-label="Monstre : ${hp} points de vie sur ${max}"><span class="micro">PV DU MONSTRE</span><div class="monster-hearts">${Array.from({length:max},(_,i)=>heart(i<hp,boss&&i>=hp&&i<hp+recentDamage?'just-lost':'')).join('')}</div></div>`}
   function enemyName(enemy){return enemy.foes?.length>1?enemy.foes.map(foe=>foe.monster.name).join(' & '):enemy.monster.name}
   function enemyArt(enemy){return enemy.foes?.length>1?`<div class="foe-pair">${enemy.foes.map(foe=>`<span class="foe ${foe.hp?'':'is-defeated'}">${pixelSprite(foe.monster.id)}<b>${escape(foe.monster.name)}</b></span>`).join('')}</div>`:pixelSprite(enemy.monster.id)}
   function enemyHealth(enemy){return enemy.foes?.length>1?`<div class="foe-health">${enemy.foes.map(foe=>`<div><b>${escape(foe.monster.name)}</b>${monsterHearts(foe.hp,foe.max,foe.boss)}</div>`).join('')}</div>`:monsterHearts(enemy.hp,enemy.max,enemy.boss)}
   function pickCurse(pool){const coffee=pool.find(item=>item.coffee),others=pool.filter(item=>!item.coffee);return coffee&&(!others.length||Math.random()<.3)?coffee:pick(others)}
   function award(kind){const deck=kind==='relic'?relicDeck:curseDeck;const owned=[...state.players.flatMap(p=>p.items.map(item=>item.name)),...state.pendingAwards.map(entry=>entry.item.name)];const available=deck.filter(item=>!owned.includes(item.name));const pool=available.length?available:deck,selected=kind==='curse'?pickCurse(pool):pick(pool);const count=selected.task.includes('{nombre}')?random(10)+1:0;const task=count?selected.task.replace('{nombre} objets',count===1?'1 objet':`${count} objets`):selected.task;const resolvedTask=selected.budgets?task.replace('{budget}',String(pick(selected.budgets))):task;const item={...selected,task:resolvedTask,kind,sealed:kind==='curse'||Math.random()<.2};state.pendingAwards.push({item,foundBy:player().name});return item}
-  function grantBooster(index=state.active,source='combat'){
-    const booster={id:state.nextBoosterId++,source};
-    state.players[index].boosters??=[];state.players[index].boosters.push(booster);
-    return booster;
-  }
-  const rarityLabel={common:'Normale',rare:'Rare',legendary:'Légendaire'};
-  const slotRarities=['common','common','rare','legendary'];
-  const boosterCatalogues={
-    common:{relic:relicDeck,curse:curseDeck.filter(item=>item.category!=='purchase')},
-    rare:{outfit:outfitDecks},
-    legendary:{pink:pinkDecks,curse:curseDeck.filter(item=>item.category==='purchase')}
-  };
-  function drawBoosterCards(booster,index){
-    const royal=booster.source==='boss',roll=Math.random(),cuts=royal?[.08,.20,.42,.70,.90,1]:[.14,.39,.67,.85,.96,1];
-    const count=cuts.findIndex(cut=>roll<cut),cards=[];
-    // Four or five cards guarantee exactly one legendary; smaller packs stay uncertain.
-    const legendaryChance=count>0&&count<4&&Math.random()<count*(royal?.08:.05);
-    const legendaryIndex=count>=4||legendaryChance?random(count):-1;
-    const used=new Set(state.players.flatMap(p=>[...(p.hand||[]),...(p.slots||[])].filter(Boolean).map(card=>card.name)));
-    for(let i=0;i<count;i++){
-      const rarity=i===legendaryIndex?'legendary':Math.random()<(royal?.49:.31)?'rare':'common';
-      const kinds=rarity==='legendary'?(booster.source==='pink'?['pink']:['pink','curse']):rarity==='rare'?['outfit']:['relic','relic','curse'];
-      const kind=pick(kinds),catalogue=boosterCatalogues[rarity];
-      const deck=kind==='pink'||kind==='outfit'?catalogue[kind][index===0?'agathe':'clement']:catalogue[kind];
-      const fresh=deck.filter(item=>!used.has(item.name)),pool=fresh.length?fresh:deck;
-      if(!pool.length)continue;
-      const selected=pick(pool),card={...resolveShopMission(selected,kind),rarity,id:`${booster.id}-${i}`};
-      used.add(card.name);cards.push(card);
-    }
-    return cards;
-  }
   function weightedPotion(){let n=Math.random()*100;return dropDeck.find(item=>(n-=item.weight)<0)||dropDeck[dropDeck.length-1]}
   const hasPink=p=>p.items.some(item=>item.kind==='pink');
   const hasOutfit=p=>!!p.outfit||p.items.some(item=>item.kind==='outfit');
@@ -985,7 +932,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   const eraseKey={kind:'key',name:'Clef d’effacement',task:'Efface une mission de ta propre fiche finale.'};
   function tryKeyDrop(index=state.active){const p=state.players[index];if(p.keyDropped||Math.random()>=.2)return null;p.keyDropped=true;p.eraseKey=true;return {...eraseKey}}
   const thiefIds=new Set(['goblin','kobold','mimic']);
-  function stealBooster(enemy,index=state.active){const p=state.players[index],foes=enemy.foes||[enemy];if(!foes.some(foe=>foe.hp>0&&thiefIds.has(foe.monster?.id))||!p.boosters?.length||Math.random()>=.4)return false;p.boosters.pop();return true}
+  function stealCoins(enemy,index=state.active){const p=state.players[index],foes=enemy.foes||[enemy];if(!foes.some(foe=>foe.hp>0&&thiefIds.has(foe.monster?.id)))return 0;const amount=Math.min(p.coins||0,state.difficulty==='gold'?random(5)+3:random(3)+1);p.coins=(p.coins||0)-amount;return amount}
   function treasureAmount(){let ticket=random(5050);for(let amount=1;amount<=100;amount++){ticket-=101-amount;if(ticket<0)return amount}return 100}
   function dungeonSurprise(pool){const type=pickSurprise(pool);return type!=='curse'&&Math.random()<.1?'treasure':type}
   const massageDeck=[
@@ -1025,10 +972,10 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   }
   function deleteFinalItem(index,itemIndex){
     if(state.phase!=='end'||!Number.isInteger(index)||!Number.isInteger(itemIndex))return;
-    const p=state.players[index];if(!p?.eraseKey||!p.slots?.[itemIndex])return;
-    p.slots[itemIndex]=null;p.eraseKey=false;renderHud();renderFinalCards();
+    const p=state.players[index];if(!p?.eraseKey||!p.items[itemIndex])return;
+    const [item]=p.items.splice(itemIndex,1);p.eraseKey=false;if(item.kind==='outfit')p.outfit=null;renderHud();renderFinalCards();
   }
-  function dropIcon(item){const potion=item.kind==='potion';return `<svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${potion?'<path d="M9 2h6v3H9zM8 5h8l-.4 3.2 3.3 4.5a4 4 0 0 1 .8 2.4V19a3 3 0 0 1-3 3H7.3a3 3 0 0 1-3-3v-3.9a4 4 0 0 1 .8-2.4l3.3-4.5z"/><path d="M6 15c3-1.8 5.6.9 8.2-.4 1.3-.6 2.2-.7 3.8-.3"/><path d="M10 18h4m-2-2v4"/>':'<path d="M3.5 10.5 12 5l8.5 5.5V20H3.5zM3.5 11h17M8 8l4-3 4 3"/><path d="M9 20v-6l3-2 3 2v6M10 16h4"/>'}</svg>`}
+  function dropIcon(item){const potion=item.kind==='potion';return `<svg class="drop-icon" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${potion?'<path fill="#cfc6a5" d="M4 1h4v2H4zM5 3h2v2H5zM3 5h6v1H3zM2 6h8v5H2z"/><path fill="#82dfbd" d="M3 7h6v3H3z"/><path fill="#eaf9d5" d="M4 6h2v1H4z"/>':'<path fill="#b9a078" d="M4 1h4v1H4zM3 2h6v2H3z"/><path fill="#6ac0ae" d="M3 4h6v2H3zM2 6h8v5H2z"/><path fill="#3b726f" d="M2 8h2v3H2zM8 8h2v3H8z"/><path fill="#c8dfb9" d="M5 4h2v5H5z"/>'}</svg>`}
   function dropMarkup(item){return item?`<div class="item-reveal drop-reveal item-with-art drop-summon"><span class="drop-pedestal">${itemArt(item)}<i></i></span><span><b>${escape(item.name)}</b><small>${escape(item.task)}</small></span></div>`:''}
   function consumeAutoPotion(p,effect,description){const index=p.bag.findIndex(item=>item.effect===effect);if(index<0)return false;const [item]=p.bag.splice(index,1);state.autoNotes.push({item,owner:p.name,text:description});return true}
   function healAutomatically(p){while(p.hp>0&&p.hp<p.max&&p.bag.some(item=>item.effect==='heal')){consumeAutoPotion(p,'heal','+1 cœur');p.hp++;p.notice='Soin · +1 cœur'}}
@@ -1061,39 +1008,40 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     return `<svg class="stone-housing" viewBox="0 0 480 270" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path d="M18 12h146l12-8h128l12 8h146v12h10v224h-13v13H21v-13H8V24h10z" fill="#0c2a30"/><path d="M19 8h145l12-8h128l12 8h145v14h11v222h-13v12H21v-12H8V22h11z" fill="#596e62"/><path d="M23 14h142l12-8h126l12 8h142v12h9v212h-13v12H27v-12H14V26h9z" fill="#7b8b73"/><path d="M28 21h424v212H28z" fill="#304e48"/><path d="M31 24h418v206H31z" fill="#1d3c3f"/><path d="M14 29h10v203H14zM456 29h10v203h-10z" fill="#8c9980"/><path d="M14 89h10v4H14zM14 174h10v4H14zM456 89h10v4h-10zM456 174h10v4h-10z" fill="#3e5d53"/><path d="M46 15h133v3H46zM301 15h133v3H301zM46 237h388v3H46z" fill="#bfad7d"/><path d="M197 9h86v9h-86z" fill="#465f54"/><path d="M224 8h32v3h-32zM232 5h16v9h-16z" fill="#b7a77c"/><path d="M237 6h6v6h-6z" fill="#97c9ad"/><path d="M38 7v10l-6 7 3 9M444 9l-5 9 7 7-4 13M22 208l8 4-4 7 5 10M459 182l-7 6 3 10" fill="none" stroke="#283f3b" stroke-width="2"/>${grain}<g fill="#d4bd84"><rect x="17" y="32" width="5" height="5"/><rect x="458" y="32" width="5" height="5"/><rect x="17" y="220" width="5" height="5"/><rect x="458" y="220" width="5" height="5"/></g></svg>`;
   }
   function ambienceGlyph(index){const paths=[['#c7ba91','M2 3h2v2h2V2h4v3h2V3h2v11H2z'],['#a4ca96','M7 8h2v7H7zM4 10h3v2H4zM9 9h3v2H9z'],['#e6a273','M7 1h2v3h2v3h2v2h1v4h-2v2H4v-2H2V9h2V6h2v3h1z'],['#edc867','M4 3h8v2h2v7h-2v2H4v-2H2V5h2z'],['#b9dc91','M7 2h2v5h4v2h-4v5H7V9H3V7h4z'],['#c4b5db','M2 3h12v11H2zM5 1h6v3H5z']];const [fill,d]=paths[index];return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="${fill}" d="${d}"/>${index===0?'<path fill="#36554e" d="M6 9h4v5H6z"/>':index===1?'<path fill="#e5bda0" d="M5 2h6v2h2v4h-2v2H5V8H3V4h2z"/><path fill="#ebdba7" d="M6 4h4v4H6z"/>':index===2?'<path fill="#f3d6a2" d="M7 7h2v2h2v4H5v-3h2z"/>':index===3?'<path fill="#785432" d="M5 5h6v1H5zM5 8h6v1H5zM5 11h6v1H5z"/>':index===4?'<path fill="#f4e9b9" d="M7 4h2v2H7zM4 8h2v2H4zM10 8h2v2h-2z"/>':'<path fill="#7e638e" d="M4 5h8v7H4zM7 6h2v5H7z"/>'}</svg>`}
-  function zoneGlyph(index){const paths=['<path d="M4 19V9l8-6 8 6v10M8 19v-8h8v8M2 19h20"/>','<path d="M4 19c2-4 3-8 8-14 5 6 6 10 8 14M7 14h10M12 3v18"/>','<path d="m12 2 7 7-3 12H8L5 9zM9 12h6M12 6v12"/>','<path d="M3 8h18M5 8V4h14v4M5 8l2 12h10l2-12M10 12h4M12 16v4"/>','<path d="M12 21V5M4 20c1-7 5-10 8-9M20 20c-1-7-5-10-8-9M7 7l5-4 5 4"/>','<path d="M4 20V5l4-2 4 2 4-2 4 2v15M4 10h16M8 20v-6h8v6"/>','<path d="M12 2c-5 4-7 8-7 12a7 7 0 0 0 14 0c0-4-2-8-7-12zM8 14c2 1 6 1 8 0M12 8v13"/>','<path d="M2 20h20M5 20V9l7-5 7 5v11M4 11l8 4 8-4M12 15v5"/>','<path d="M5 21V8l7-5 7 5v13M3 21h18M7 11c2 1 3 1 5 0s3-1 5 0M7 15c2 1 3 1 5 0s3-1 5 0"/>','<path d="M4 5h16M8 5v5l4 3 4-3V5M5 21h14M12 13v8M7 16l5-3 5 3"/>'];return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[index]||paths[0]}</svg>`}
+  function zoneGlyph(index){if(index<6)return ambienceGlyph(index);const colors=[['#d6c7de','#6d7890'],['#c4a07b','#51443d'],['#a9e0dc','#386b79'],['#ddb2ce','#5b365e']][index-6]||['#d6c7de','#6d7890'];return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path fill="${colors[0]}" d="M2 2h12v12H2z"/><path fill="${colors[1]}" d="M5 4h6v9H5z"/><path fill="${colors[0]}" d="M9 8h1v1H9z"/></svg>`}
   function showSetup(){
     state.phase='setup';
     state.weaponPicks=[null,null];state.wheelSpun=false;state.difficulty=null;state.roomGoal=1;state.roomCap=5;
     const weaponButtons=i=>weapons.map(w=>`<button class="weapon-choice" type="button" data-weapon-player="${i}" data-weapon="${w.id}" aria-pressed="false" aria-label="${escape(w.name)}. ${escape(w.description)}"><span class="weapon-heading"><span class="weapon-icon" aria-hidden="true">${weaponIcon(w.id)}</span><b>${escape(w.name)}</b></span>${weaponDice(w)}</button>`).join('');
-    const signs=wheelSegments.map((_,i)=>{const angle=(i*36-90)*Math.PI/180;return `<span class="oracle-sign" style="left:${50+Math.cos(angle)*41}%;top:${50+Math.sin(angle)*41}%" title="${escape(wheelLabels[i])}">${zoneGlyph(i)}</span>`}).join('');
-    $('setup').innerHTML=`<div class="setup-name-grid"><div><span class="field-label">Joueur 1</span><div class="fixed-name">Agathène<span class="start-hearts" role="img" aria-label="3 cœurs">${heart()}${heart()}${heart()}</span></div><span class="field-label">Arme · D6 → ♥ monstre</span><div class="weapon-grid">${weaponButtons(0)}</div></div><div><span class="field-label">Joueur 2</span><div class="fixed-name">Clémentis<span class="start-hearts" role="img" aria-label="3 cœurs">${heart()}${heart()}${heart()}</span></div><span class="field-label">Arme · D6 → ♥ monstre</span><div class="weapon-grid">${weaponButtons(1)}</div></div></div><div class="weapon-legend"><span>♥ Dégâts du dé · jet raté : le monstre attaque</span></div><div class="stone-wheel-wrap oracle-wrap"><span class="oracle-kicker">L’ASTROLABE DES DIX DONJONS</span><div class="oracle-stage" role="img" aria-label="Roue des dix donjons"><span class="oracle-pointer" aria-hidden="true"></span><div class="oracle-wheel" id="oracleWheel">${signs}</div><span class="oracle-heart" aria-hidden="true">✦</span></div><p class="oracle-outcome" id="oracleOutcome" role="status">Le sort choisira le donjon et sa longueur.</p><button class="alt-button" type="button" data-action="spin-wheel" id="spinWheel">Faire tourner l’astrolabe</button></div><p class="setup-error" id="setupError" role="alert"></p><div class="setup-actions"><button class="main-button" type="button" data-action="save-setup" id="startGame" disabled>Entrer dans le donjon</button></div>`;
+    const reel=(id,values)=>`<div class="stone-reel" aria-hidden="true"><div class="reel-track" id="${id}">${Array.from({length:56},(_,i)=>`<div class="reel-item">${id==='dangerTrack'?`<span class="reel-glyph">${zoneGlyph(i%wheelSegments.length)}</span>`:''}<span>${escape(values[i%values.length])}</span></div>`).join('')}</div></div>`;
+    $('setup').innerHTML=`<div class="setup-name-grid"><div><span class="field-label">Joueur 1</span><div class="fixed-name">Agathène<span class="start-hearts" role="img" aria-label="3 cœurs">${heart()}${heart()}${heart()}</span></div><span class="field-label">Arme · D6 → ♥ monstre</span><div class="weapon-grid">${weaponButtons(0)}</div></div><div><span class="field-label">Joueur 2</span><div class="fixed-name">Clémentis<span class="start-hearts" role="img" aria-label="3 cœurs">${heart()}${heart()}${heart()}</span></div><span class="field-label">Arme · D6 → ♥ monstre</span><div class="weapon-grid">${weaponButtons(1)}</div></div></div><div class="weapon-legend"><span>♥ Dégâts du dé · jet raté : le monstre attaque</span></div><div class="stone-wheel-wrap">${stoneHousing()}<div class="stone-reels" role="group" aria-label="Rouleaux de pierre pour le thème du donjon et la longueur maximale du parcours"><div class="reel-column"><span class="reel-title">Ambiance</span>${reel('dangerTrack',wheelLabels)}</div><div class="reel-column"><span class="reel-title">Salles</span>${reel('roomsTrack',[2,3,4,5])}</div></div><button class="alt-button" type="button" data-action="spin-wheel" id="spinWheel">Éveiller la pierre</button></div><p class="setup-error" id="setupError" role="alert"></p><div class="setup-actions"><button class="main-button" type="button" data-action="save-setup" id="startGame" disabled>Entrer dans le donjon</button></div>`;
   }
   function spinWheel(){
     if(state.weaponPicks.some(x=>!x)){$('setupError').textContent='Choisissez une arme chacun.';return}
     if(state.wheelSpun||state.wheelTimer)return;
     $('setupError').textContent='';$('spinWheel').disabled=true;$('setup').querySelector('.stone-wheel-wrap').classList.add('is-spinning');
     const segment=random(wheelSegments.length);state.difficulty=wheelSegments[segment];state.roomCap=state.difficulty==='lighthouse'?random(2)+4:random(4)+2;
-    $('oracleWheel').style.transform=`rotate(${1440-segment*36}deg)`;
-    state.wheelTimer=setTimeout(()=>{state.wheelTimer=null;state.wheelSpun=true;$('setup').querySelector('.stone-wheel-wrap').classList.remove('is-spinning');$('oracleOutcome').innerHTML=`<b>${escape(wheelLabels[segment])}</b><span>${state.roomCap} salles avant la sortie</span>`;$('startGame').disabled=false},window.matchMedia('(prefers-reduced-motion: reduce)').matches?20:3100);
+    const dangerIndex=36+segment,roomsIndex=40+state.roomCap-2;
+    $('dangerTrack').style.transform=`translateY(${44-44*dangerIndex}px)`;
+    $('roomsTrack').style.transform=`translateY(${44-44*roomsIndex}px)`;
+    state.wheelTimer=setTimeout(()=>{state.wheelTimer=null;state.wheelSpun=true;$('setup').querySelector('.stone-wheel-wrap').classList.remove('is-spinning');$('startGame').disabled=false},window.matchMedia('(prefers-reduced-motion: reduce)').matches?20:3100);
   }
   function saveSetup(){
     const names=['Agathène','Clémentis'];
     if(state.weaponPicks.some(x=>!x)||!state.wheelSpun){$('setupError').textContent='Choisissez vos armes et tournez la roue.';return}
-    state.players=names.map((name,i)=>({name,max:3,hp:3,rooms:0,detours:0,weapon:state.weaponPicks[i],items:[],bag:[],boosters:[],hand:[],slots:[null,null,null,null],outfit:null,focus:0,doorMalus:0,returningDoor:null,guard:0,power:0,lastStand:false,potionReceived:false,keyDropped:false,eraseKey:false,monsterGoal:2,pendingEncounter:null,finalEntered:false,finalWon:false}));state.shared=themes.map(([id])=>id).filter(id=>id!=='taches');state.active=random(2);$('setup').hidden=true;$('game').hidden=false;$('restart').hidden=false;prepareDoors();
+    state.players=names.map((name,i)=>({name,max:3,hp:3,rooms:0,detours:0,weapon:state.weaponPicks[i],items:[],bag:[],outfit:null,focus:0,doorMalus:0,returningDoor:null,guard:0,power:0,lastStand:false,potionReceived:false,keyDropped:false,eraseKey:false,coins:startingCoins,shopPurchases:0,shopOpened:{},shopStock:null,monsterGoal:2,pendingEncounter:null,finalEntered:false,finalWon:false}));state.shared=themes.map(([id])=>id).filter(id=>id!=='taches');state.active=random(2);$('setup').hidden=true;$('game').hidden=false;$('restart').hidden=false;prepareDoors();
   }
-  function hudInventoryIcon(kind){if(kind==='booster')return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h14l2 4-1 15H4L3 6zM3 6h18M9 3l-2 3m8-3 2 3"/><path d="M12 8a4 4 0 1 0 4 6 4 4 0 0 1-4-6z"/></svg>';if(kind==='key')return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="5"/><path d="M11.5 12.5 21 22m-4-4 2-2m-5-1 2-2"/></svg>';if(kind==='potion')return dropIcon({kind});return finalItemIcon(kind)}
-  function hudInventory(p){const counts={potion:p.bag.length,booster:p.boosters?.length||0,key:p.eraseKey?1:0};const labels={potion:'Potions',booster:'Boosters à ouvrir',key:'Clef d’effacement'};return `<div class="hud-inventory" aria-label="Inventaire de ${escape(p.name)}">${Object.entries(counts).map(([kind,count])=>`<span class="inventory-chip ${count?'has-item':'empty'} ${kind}" title="${labels[kind]} : ${count}" aria-label="${labels[kind]} : ${count}">${hudInventoryIcon(kind)}<i>${count}</i></span>`).join('')}</div>`}
+  function hudInventoryIcon(kind){if(kind==='coin')return coinFace('Pile');if(kind==='key')return itemArt(eraseKey);if(kind==='potion'||kind==='outfit')return dropIcon({kind});if(kind==='pink')return '<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f2b1d0" d="M2 3h8v2H2zM1 5h10v5H1z"/><path fill="#8d5578" d="M2 6h8v3H2z"/><path fill="#ffe0a0" d="M5 5h2v3H5z"/><path fill="#592e4b" d="M0 4h2v2H0zm10 0h2v2h-2z"/></svg>';return finalItemIcon(kind)}
+  function hudInventory(p){const counts={potion:p.bag.length,pink:p.items.filter(item=>item.kind==='pink').length,outfit:p.outfit?1:0,key:p.eraseKey?1:0,coin:p.coins||0};const labels={potion:'Potions',pink:'Coffres roses',outfit:'Tenue obtenue',key:'Clef d’effacement',coin:'Pièces'};return `<div class="hud-inventory" aria-label="Inventaire de ${escape(p.name)}">${Object.entries(counts).map(([kind,count])=>`<span class="inventory-chip ${count?'has-item':'empty'} ${kind}" title="${labels[kind]} : ${count}" aria-label="${labels[kind]} : ${count}">${hudInventoryIcon(kind)}<i>${count}</i></span>`).join('')}</div>`}
   function renderHud(){
     const remaining=0;$('haul').hidden=!remaining||state.phase==='end';$('haul').innerHTML=remaining?`${itemArt({name:'Bourse du butin',kind:'relic'})}<span>Butin commun</span><b>${remaining}</b>`:'';
     const hurt=(['combat-result','final-result'].includes(state.phase)&&state.result?.effect==='hurt')||(state.phase==='event'&&['trap','hole'].includes(state.result?.kind));
-    const spotlight=['booster-ready','booster-opening','booster-reveal'].includes(state.phase)?state.boosterTurn:state.phase==='deck-build'?state.deckTurn:state.active;
-    $('hud').innerHTML=state.players.map((p,i)=>`<article class="player-card ${i===spotlight?'active':''} ${p.hp===0?'ko':''} ${hurt&&(state.phase==='final-result'||state.result?.kind==='hole'?state.result?.losses?.some(d=>d.index===i&&d.damage>0):i===state.active)?'hurt':''} ${p.notice?.startsWith('Soin')?'healed':''}"><div class="hud-top"><strong>${escape(p.name)}</strong><div class="health" role="img" aria-label="${p.hp} cœurs sur ${p.max}">${Array.from({length:p.max},(_,j)=>heart(j<p.hp)).join('')}</div></div><div class="hud-details"><span class="room-count" aria-label="${p.rooms+(p.finalWon?1:0)} monstres vaincus sur ${monsterTotal(p)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 20 20 4m-8 0 8 8M3 17l4 4m-3-1 3-3"/></svg>${p.rooms+(p.finalWon?1:0)}/${monsterTotal(p)}</span><span class="detour-count" aria-label="${Math.min(state.roomCap,p.rooms+p.detours+(p.finalEntered?1:0))} salles ouvertes sur ${state.roomCap} maximum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12zM8 21v-8h8v8M5 10h14"/></svg>${Math.min(state.roomCap,p.rooms+p.detours+(p.finalEntered?1:0))}/${state.roomCap}</span>${p.doorMalus?'<span class="door-malus">−1 D6</span>':''}</div>${hudInventory(p)}</article>`).join('');
+    $('hud').innerHTML=state.players.map((p,i)=>`<article class="player-card ${i===(state.phase==='shop'?state.shopPlayer:state.active)?'active':''} ${p.hp===0?'ko':''} ${hurt&&(state.phase==='final-result'||state.result?.kind==='hole'?state.result?.losses?.some(d=>d.index===i&&d.damage>0):i===state.active)?'hurt':''} ${p.notice?.startsWith('Soin')?'healed':''}"><div class="hud-top"><strong>${escape(p.name)}</strong><div class="health" role="img" aria-label="${p.hp} cœurs sur ${p.max}">${Array.from({length:p.max},(_,j)=>heart(j<p.hp)).join('')}</div></div><div class="hud-details"><span class="room-count" aria-label="${p.rooms+(p.finalWon?1:0)} monstres vaincus sur ${monsterTotal(p)}">⚔ ${p.rooms+(p.finalWon?1:0)}/${monsterTotal(p)}</span><span class="detour-count" aria-label="${Math.min(state.roomCap,p.rooms+p.detours+(p.finalEntered?1:0))} salles ouvertes sur ${state.roomCap} maximum">▣ ${Math.min(state.roomCap,p.rooms+p.detours+(p.finalEntered?1:0))}/${state.roomCap}</span>${p.doorMalus?'<span class="door-malus">PORTE −1 D6</span>':''}</div>${hudInventory(p)}</article>`).join('');
     state.players.forEach(p=>{p.notice=''});
-    $('turnText').textContent=state.phase==='end'?'Défis du jour':state.phase==='deck-build'?`Choix des cartes · ${state.players[state.deckTurn].name}`:state.phase.startsWith('booster-')?`Boosters · ${state.players[state.boosterTurn].name}`:`${difficulties[state.difficulty]?.label||''} · ${state.phase.startsWith('final')&&livingPlayers().length===2?'Ensemble':player().name} · ${readyForFinal(player())?'finale':`salle ${player().rooms+player().detours+1}/${state.roomCap}`}`;
+    $('turnText').textContent=state.phase==='end'?'Partie terminée':state.phase==='shop'?`Le bazar · ${state.players[state.shopPlayer].name}`:`${difficulties[state.difficulty]?.label||''} · ${state.phase.startsWith('final')&&livingPlayers().length===2?'Ensemble':player().name} · ${readyForFinal(player())?'finale':`salle ${player().rooms+player().detours+1}/${state.roomCap}`}`;
     $('progressLine').innerHTML=Array.from({length:monsterTotal(player())},(_,i)=>`<span class="progress-pip ${i<player().rooms+(player().finalWon?1:0)?'done':''}"></span>`).join('');
   }
-  function pixelDoorArt(kind){
+  function doorArt(kind){
     // Door appearance never depends on its hidden contents.
     const garden=state.difficulty==='normal',hell=state.difficulty==='hard',gold=state.difficulty==='gold',clearing=state.difficulty==='clearing',castle=state.difficulty==='castle',sanctuary=state.difficulty==='sanctuary',returning=state.difficulty==='returning',lighthouse=state.difficulty==='lighthouse',theatre=state.difficulty==='theatre';
     const stone=hell?['#362d3b','#5d4049','#8e5652','#d8956c']:garden?['#304e49','#52766a','#85a082','#d7cf9c']:gold?['#5b4732','#9f7944','#cda457','#f3db8a']:clearing?['#385642','#628260','#9cba78','#dfdfa4']:castle?['#21172d','#4a2b49','#8b4b70','#d889ae']:sanctuary?['#39465c','#758397','#aeb7bb','#e1d7bb']:returning?['#3d3b3a','#746051','#a68566','#d9b78d']:['#293c40','#53605b','#859083','#c5b48c'];
@@ -1110,41 +1058,6 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     const fissures=hell?`<path d="m10 61 6 7-3 12 5 8M103 97l6 9-5 10 6 12M37 27l4 6-3 6" fill="none" stroke="#e78156" stroke-width="1"/>${depth>.5?'<path d="m102 43 5 8-3 7M12 112l4 7-3 12" fill="none" stroke="#ffad67" stroke-width="1"/>':''}`:'';
     const crest=castle?'<path d="M49 63h9v4h4v-4h9v4h4v8h-4v5h-5v5h-5v5h-3v-5h-5v-5h-5v-5h-4v-8h5z"/>':kind==='moon'?'<path d="M63 60c-15 3-15 24 0 28-8-9-8-19 0-28z"/>':kind==='thorn'?'<path d="M58 91V61h3v30zm0-13L46 68l2-3 12 10zm2 6 12-14 3 2-13 15z"/>':kind==='iron'?'<path d="M48 66h24v4H48zm4 7h16v4H52zm5 7h6v7h-6z"/>':kind==='stone'?'<path d="M50 62h20v4H50zm-4 4h4v16h-4zm24 0h4v16h-4zM50 82h20v4H50zm8-16h4v16h-4z"/>':'<path d="M56 63h8v7h7v8h-7v7h-8v-7h-7v-8h7z"/>';
     return `<svg class="door-art" viewBox="0 0 120 170" shape-rendering="crispEdges" aria-hidden="true"><ellipse cx="60" cy="162" rx="57" ry="6" fill="#071a2088"/><path d="M4 153V43h5V31h9V21h13V14h58v7h13v10h9v12h5v110z" fill="${stone[0]}"/><path d="M9 150V43h7V32h12V22h64v10h12v11h7v107z" fill="${stone[1]}"/><path d="M21 150V43h7V34h12v-6h40v6h12v9h7v107z" fill="#09171d"/><path d="M25 149V44h7v-7h12v-5h32v5h12v7h7v105z" fill="#e6d9a5" class="door-light-gap"/>${blocks}<g class="door-leaf"><path d="M25 149V44h7v-7h12v-5h32v5h12v7h7v105z" fill="${wood[0]}"/><path d="M28 146V46h7v-7h13v-4h24v4h13v7h7v100z" fill="${wood[1]}"/><path d="M29 47h3v97h-3zm17-7h2v104h-2zm15-4h2v108h-2zm16 5h2v103h-2zm13 7h2v96h-2z" fill="${wood[0]}"/><path d="M33 47h1v94h-1zm16-7h1v102h-1zm15-3h1v106h-1z" fill="${wood[2]}" opacity=".65"/>${grain}<g fill="${stone[0]}"><path d="M28 52h64v7H28zm0 74h64v7H28z"/></g><path d="M29 52h62v2H29zm0 74h62v2H29z" fill="${stone[3]}"/><g fill="${stone[3]}">${crest}<path class="door-latch" d="M83 93h7v3h-2v7h-3v-7h-2z"/></g><g fill="${wood[2]}"><path d="M32 55h2v2h-2zm53 0h2v2h-2zm-53 74h2v2h-2zm53 0h2v2h-2z"/></g></g><path d="M18 43h7v106h-7zM95 43h5v106h-5z" fill="${stone[0]}"/><path d="M27 31v-8h16v-6h34v6h16v8h-9v-4H36v4z" fill="${stone[2]}"/><path d="M52 18h16v13H52z" fill="${stone[3]}"/><path d="M56 20h8v8h-8z" fill="${hell?'#b65348':garden?'#748f6d':gold?'#ffdd78':clearing?'#aad68f':castle?'#d4a5cc':'#94714f'}"/>${plants}${fissures}<path d="M5 151h110v8H5z" fill="${stone[0]}"/><path d="M9 150h102v4H9z" fill="${stone[2]}"/><path d="M17 151h17v1H17zm24 0h31v1H41zm41 1h18v1H82z" fill="${stone[3]}"/><path d="M2 159h116v3H2z" fill="#17282a"/></svg>`;
-  }
-  function doorArt(kind){
-    const cell={oak:0,iron:1,stone:2,thorn:3,moon:4,bronze:5}[kind]??0,col=cell%3,row=Math.floor(cell/3),x=-col*512,y=-row*512,mask=`door-frame-${kind}`,clip=`door-panel-${kind}`;
-    const picture=`<image href="assets/doors.webp" x="${x}" y="${y}" width="1536" height="1024"/>`;
-    return `<svg class="door-art painted-door" viewBox="0 0 512 512" preserveAspectRatio="none" aria-hidden="true"><defs><clipPath id="${clip}"><path d="M105 488V164C105 100 166 57 256 57s151 43 151 107v324z"/></clipPath><mask id="${mask}"><rect width="512" height="512" fill="white"/><path d="M105 488V164C105 100 166 57 256 57s151 43 151 107v324z" fill="black"/></mask><linearGradient id="door-light-${kind}" x1="0" x2="1" y1=".5" y2=".5"><stop stop-color="#e5d7bb"/><stop offset=".46" stop-color="#fff6d7"/><stop offset="1" stop-color="#9cc6c1"/></linearGradient></defs><path class="door-light-gap" d="M105 488V164C105 100 166 57 256 57s151 43 151 107v324z" fill="url(#door-light-${kind})"/><g mask="url(#${mask})">${picture}</g><g class="door-leaf" clip-path="url(#${clip})">${picture}</g></svg>`;
-    // A smooth illustrated threshold; its ornament is decorative, never a hint.
-    const realm={
-      easy:['#263d51','#69817a','#d3c18c'],normal:['#2c554e','#83a583','#ddd5a8'],hard:['#4c3448','#b67166','#f0b17f'],
-      gold:['#5c463f','#c89c5b','#ffe0a1'],clearing:['#345a52','#97b985','#e4dda4'],castle:['#3d2c4e','#ad7199','#f0b6d1'],
-      sanctuary:['#465470','#aeb4ce','#e7ddec'],returning:['#53483f','#b59b7d','#efcca0'],lighthouse:['#2e5369','#88cbd0','#d5f2e9'],
-      theatre:['#4a335b','#c388ac','#f0d0df']
-    }[state.difficulty]||['#263d51','#69817a','#d3c18c'];
-    const leaf={oak:['#4e3940','#986c5a','#d6a782'],iron:['#253d50','#5a7886','#bfd3cb'],stone:['#3a4854','#82939a','#c7d6ce'],thorn:['#314d47','#6b9679','#c3d59e'],moon:['#373952','#77749d','#c7bce0']}[kind]||['#4e3940','#986c5a','#d6a782'];
-    const seal=kind==='moon'?'<path d="M65 69a17 17 0 1 0 0 30 14 14 0 1 1 0-30z"/>':kind==='thorn'?'<path d="M60 96V69m0 17c-11-2-15-8-14-14 9 0 13 5 14 14zm0-8c8-10 14-11 19-8-3 8-9 10-19 8z" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>':kind==='iron'?'<path d="M49 72h22v4H49zm4 9h14v4H53zm5 9h4v9h-4z"/>':kind==='stone'?'<path d="m60 69 16 15-16 15-16-15z" fill="none" stroke="currentColor" stroke-width="3"/>':'<path d="M60 68c-7 0-12 5-12 11 0 7 6 10 12 18 6-8 12-11 12-18 0-6-5-11-12-11zm0 7v13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>';
-    return `<svg class="door-art" viewBox="0 0 120 170" shape-rendering="geometricPrecision" aria-hidden="true">
-      <ellipse cx="60" cy="159" rx="50" ry="7" fill="#071321" opacity=".6"/>
-      <path d="M6 155V66C6 33 28 8 60 8s54 25 54 58v89z" fill="${realm[0]}" stroke="${realm[2]}" stroke-width="2"/>
-      <path d="M12 153V66c0-29 20-51 48-51s48 22 48 51v87" fill="none" stroke="${realm[1]}" stroke-width="7"/>
-      <path d="M20 151V67c0-24 17-43 40-43s40 19 40 43v84z" fill="#0a1b2c" stroke="${realm[2]}" stroke-width="2"/>
-      <path class="door-light-gap" d="M26 149V68c0-21 14-38 34-38s34 17 34 38v81z" fill="${realm[2]}"/>
-      <g class="door-leaf">
-        <path d="M26 149V68c0-21 14-38 34-38s34 17 34 38v81z" fill="${leaf[0]}" stroke="${leaf[2]}" stroke-width="2"/>
-        <path d="M31 145V68c0-18 12-33 29-33s29 15 29 33v77z" fill="${leaf[1]}"/>
-        <path d="M39 141V70c0-15 8-26 21-29 13 3 21 14 21 29v71z" fill="none" stroke="${leaf[2]}" stroke-opacity=".5" stroke-width="1.5"/>
-        <path d="M34 54c7-15 15-20 26-22 11 2 19 7 26 22M35 129h50M60 39v26M34 59h52" fill="none" stroke="${leaf[2]}" stroke-opacity=".56" stroke-width="2"/>
-        <path d="M32 72c7-6 14-8 22-9m12 0c8 1 15 3 22 9M33 137h54" fill="none" stroke="${leaf[0]}" stroke-opacity=".75" stroke-width="2"/>
-        <circle cx="60" cy="84" r="20" fill="${leaf[0]}" stroke="${realm[2]}" stroke-width="2"/>
-        <circle cx="60" cy="84" r="15" fill="${leaf[1]}" stroke="${leaf[2]}" stroke-opacity=".8"/>
-        <g style="color:${realm[2]}" fill="currentColor">${seal}</g>
-        <g class="door-latch"><circle cx="81" cy="106" r="5" fill="${realm[2]}"/><circle cx="81" cy="106" r="2" fill="${leaf[0]}"/></g>
-      </g>
-      <path d="M20 151V67c0-24 17-43 40-43s40 19 40 43v84" fill="none" stroke="${realm[1]}" stroke-width="4"/>
-      <path d="M17 153h86m-90 5h94" fill="none" stroke="${realm[2]}" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="60" cy="17" r="3" fill="${realm[2]}"/>
-    </svg>`;
   }
   const doorOmens={danger:{word:'RÂLE',tone:'red'},reward:{word:'MÉTAL',tone:'gold'},curse:{word:'MURMURE',tone:'purple'},void:{word:'VIDE',tone:'blue'},final:{word:'SEUIL',tone:'pale'}};
   function omenFor(type){if(type==='enemy')return doorOmens.danger;if(type==='curse')return doorOmens.curse;if(['trap','hole'].includes(type))return doorOmens.void;if(type==='final')return doorOmens.final;return doorOmens.reward}
@@ -1191,11 +1104,11 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   }
   function renderDoors(){
     $('stage').classList.remove('is-opening');$('overlay').hidden=true;$('choiceZone').hidden=false;$('caption').hidden=false;
-    $('choiceZone').innerHTML=state.doorSet.map((item,i)=>{const probed=state.doorProbe?.index===i,omen=probed?clueFor(item.type):null;return `<div class="door-portal"><button class="door door-${item.look||'oak'} ${probed?'probed':''} ${item.returned?'returned':''} ${item.tidal?'tidal':''}" type="button" data-door="${i}" aria-label="Ouvrir la porte ${i+1}${item.returned?' revenue':''}${item.tidal?' marquée par la marée':''}">${doorArt(item.look||'oak')}${omen?`<span class="door-omen omen-${omen.tone}" aria-hidden="true"><i></i></span>`:''}<span class="threshold-dust" aria-hidden="true">${Array.from({length:6},(_,j)=>`<i style="--px:${(j-2.5)*9}px;--py:${-8-j%3*10}px;left:${25+j*10}%"></i>`).join('')}</span></button>${state.phase==='doors'&&!state.doorProbe?`<button class="door-knocker" type="button" data-action="knock-door" data-door="${i}" aria-label="Toquer à la porte ${i+1}"><span aria-hidden="true">✦</span> TOQUER</button>`:''}<button class="door-dispatch" type="button" data-action="open-door" data-door="${i}" aria-hidden="true" tabindex="-1">Ouvrir</button></div>`}).join('');
-    $('captionTitle').textContent=state.phase==='final-doors'?'La sortie':'Choisis une porte';
+    $('choiceZone').innerHTML=state.doorSet.map((item,i)=>{const probed=state.doorProbe?.index===i,omen=probed?clueFor(item.type):null;return `<button class="door door-${item.look||'oak'} ${probed?'probed':''} ${item.returned?'returned':''} ${item.tidal?'tidal':''}" type="button" data-door="${i}" aria-label="Porte ${i+1}${item.returned?' revenue':''}${item.tidal?' marquée par la marée':''}. Un tap ouvre. Deux taps toquent.">${doorArt(item.look||'oak')}${omen?`<span class="door-omen omen-${omen.tone}" aria-hidden="true"><i></i><b>${omen.word}</b></span>`:''}<span class="threshold-dust" aria-hidden="true">${Array.from({length:6},(_,j)=>`<i style="--px:${(j-2.5)*9}px;--py:${-8-j%3*10}px;left:${25+j*10}%"></i>`).join('')}</span></button><button class="door-dispatch" type="button" data-action="open-door" data-door="${i}" aria-label="Ouvrir la porte ${i+1}">Ouvrir</button><button class="door-dispatch" type="button" data-action="knock-door" data-door="${i}" aria-label="Toquer à la porte ${i+1}">Toquer</button>`}).join('');
+    $('captionTitle').textContent=state.phase==='final-doors'?'La sortie':'Ouvre une porte';
     if(state.phase==='final-doors')$('captionCopy').textContent='';
-    else if(state.doorProbe){const omen=clueFor(state.doorSet[state.doorProbe.index].type);$('captionCopy').textContent=state.doorProbe.penalty?`${omen.word} · porte ${state.doorProbe.index+1}. −1 au prochain D6. Choisis librement.`:`${omen.word} · porte ${state.doorProbe.index+1}. Aucun malus. Choisis librement.`}
-    else $('captionCopy').textContent=state.difficulty==='sanctuary'?'A : forme. C : humeur. Toquer : indice (50 % : −1 D6).':state.difficulty==='returning'?'Une porte délaissée peut revenir.':state.difficulty==='lighthouse'?'Marée haute : porte lumineuse = booster, +1 salle.':state.difficulty==='theatre'?'Couper les fils : −1 D6, +1 dégât.':'Touche pour entrer · Toque pour un indice (50 % : −1 D6).';
+    else if(state.doorProbe){const omen=clueFor(state.doorSet[state.doorProbe.index].type);$('captionCopy').textContent=state.doorProbe.penalty?`${omen.word} · LA PORTE T’A VU · −1 au prochain D6 · retape pour entrer`:`${omen.word} · aucun malus · retape pour entrer`}
+    else $('captionCopy').textContent=state.difficulty==='sanctuary'?'Deux vérités : A voit la forme, C son humeur · 2 taps pour toquer · risque de −1 au D6':state.difficulty==='returning'?'Une porte ignorée peut revenir deux fois · 1 tap ouvre, 2 taps toquent':state.difficulty==='lighthouse'?'Marée haute une salle sur deux : la porte brillante offre 5 pièces, mais coûte une salle · 2 taps pour toquer':state.difficulty==='theatre'?'Couper les fils avant un combat : −1 au D6, +1 dégât si touché · 2 taps pour toquer':'1 tap : ouvrir · 2 taps : toquer et entrouvrir · 1 chance sur 2 : −1 au prochain D6';
   }
   function probeDoor(i){
     if(state.phase!=='doors'||state.doorProbe||!state.doorSet[i])return;
@@ -1219,24 +1132,20 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
         const curse=item.type==='curse',makeFoe=()=>{const boss=!curse&&Math.random()<difficulties[state.difficulty].boss,monster=pickMonster(curse?'curse':['clearing','sanctuary','returning','lighthouse','theatre'].includes(state.difficulty)?state.difficulty:boss?'big':'small'),hp=curse?1:boss?3:Math.random()<difficulties[state.difficulty].twoHp?2:1;return {monster,hp,max:hp,damage:boss?2:1,boss,curse}};
         const first=makeFoe(),foes=state.difficulty==='hard'?[first,makeFoe()]:[first];state.enemy={...first,foes,hp:foes.reduce((n,foe)=>n+foe.hp,0),max:foes.reduce((n,foe)=>n+foe.max,0),damage:foes.reduce((n,foe)=>n+foe.damage,0),boss:foes.some(foe=>foe.boss),curse};state.challenge=null;state.minigame=null;state.phase='combat-ready';
       }else if(item.type==='tidal'){
-        grantBooster(state.active,'tide');grantBooster(1-state.active,'tide');player().detours=Math.min(state.roomCap-1-player().rooms,player().detours+1);
-        state.result={kind:'tidal',title:'La cache de la marée',text:'Un booster chacun · +1 salle de détour · à ouvrir après le donjon'};state.phase='event';
-      }else if(item.type==='treasure'){
-        grantBooster(state.active,'treasure');grantBooster(1-state.active,'treasure');if(state.difficulty==='gold')grantBooster(state.active,'gold');
-        state.result={kind:'treasure',title:'Trésor partagé',text:`Un booster chacun${state.difficulty==='gold'?' · un bonus pour le découvreur':''} · à ouvrir après le donjon`};state.phase='event';
-      }else if(item.type==='pink'){
-        const executorIndex=1-state.active;grantBooster(executorIndex,'pink');
-        state.result={kind:'pink',title:'Coffre rose',text:`Un booster rose pour ${state.players[executorIndex].name} · ses cartes restent scellées jusqu’à la fin`};state.phase='event';
+        state.players[state.active].coins+=3;state.players[1-state.active].coins+=2;player().detours=Math.min(state.roomCap-1-player().rooms,player().detours+1);
+        state.result={kind:'tidal',title:'La cache de la marée',text:`5 pièces partagées · ${player().name} +3 · ${state.players[1-state.active].name} +2 · +1 salle de détour`};state.phase='event';
+      }else if(item.type==='treasure'){const coinsGain=Math.min(100,Math.round(treasureAmount()*(state.difficulty==='gold'?1.5:1))),finder=state.active,other=1-finder,finderShare=Math.round(coinsGain*.7),otherShare=coinsGain-finderShare;state.players[finder].coins+=finderShare;state.players[other].coins+=otherShare;state.result={kind:'treasure',title:'Trésor partagé',text:`${coinsGain} pièces · ${state.players[finder].name} +${finderShare} (70 %) · ${state.players[other].name} +${otherShare} (30 %)`,coinsGain,shares:[finderShare,otherShare]};state.phase='event';
+      }else if(item.type==='pink'){const executorIndex=1-state.active;state.pinkOffer={...drawPink(executorIndex),executorIndex};state.players[executorIndex].items.push(state.pinkOffer);state.phase='pink-chest';
       }else if(item.type==='wardrobe'){
-        grantBooster(state.active,'wardrobe');
-        state.result={kind:'wardrobe',title:'Vestiaire découvert',text:'Un booster de tenues · à ouvrir après le donjon'};state.phase='event';
+        const drop=hasOutfit(player())?dropLoot({forcePotion:true}):dropLoot({forceOutfit:true});
+        state.result={kind:'wardrobe',title:drop?.kind==='outfit'?'Vestiaire découvert':'Réserve découverte',text:drop?'Un équipement vous attend.':'La réserve est vide.',item:null,drop};state.phase='event';
       }else{
-        if(item.type==='cache'){const heal=Math.min(1,player().max-player().hp);player().hp+=heal;grantBooster(state.active,'cache');state.result={kind:'cache',title:'Réserve trouvée',text:`${heal?'♥ +1 cœur · ':''}Un booster trouvé`,drop:!player().potionReceived?ensurePotion(state.active):null,keyDrop:tryKeyDrop()}}
-        else{const damage=takeDamage(1);grantBooster(state.active,'curse');state.result={kind:'trap',title:'Piège !',text:`${damageText(damage)} · un booster maudit trouvé`,damage}}
+        if(item.type==='cache'){const heal=Math.min(1,player().max-player().hp);player().hp+=heal;state.result={kind:'cache',title:'Réserve trouvée',text:heal?'♥ +1 cœur':'Un équipement vous attend.',item:activityDrop(),drop:dropLoot(),keyDrop:tryKeyDrop()}}
+        else{const damage=takeDamage(1),coinsLost=state.difficulty==='gold'?Math.min(player().coins||0,random(8)+5):0;player().coins-=coinsLost;state.result={kind:'trap',title:'Piège !',text:`${damageText(damage)}${coinsLost?` · −${coinsLost} pièces`:''}`,damage,coinsLost,item:householdCurse()}}
         state.phase='event';
       }
       render();
-    },window.matchMedia('(prefers-reduced-motion: reduce)').matches?20:920);
+    },window.matchMedia('(prefers-reduced-motion: reduce)').matches?20:700);
   }
   function encounterAtmosphere(effect){
     const burst=['hit','defeat'].includes(effect),smoke=state.phase.startsWith('final')||state.enemy?.curse||effect==='hurt';
@@ -1251,64 +1160,17 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     $('encounter').innerHTML=`<div class="encounter-top"><span class="micro">${state.phase.startsWith('final')&&livingPlayers().length===2?'ENSEMBLE':escape(player().name)} · ${readyForFinal(player())?'FINALE':`SALLE ${player().rooms+player().detours+1}`}</span><span class="badge">${escape(badge)}</span></div><div class="enemy-art ${boss?'is-boss':''}" aria-hidden="true">${art}${encounterAtmosphere(effect)}${state.phase==='final-result'&&effect!=='hurt'&&state.result?.rolls?state.result.rolls.filter(d=>d.total>=3).map(d=>`<span class="duo-strike strike-${d.index}">${combatVfx(effect,state.players[d.index].weapon)}</span>`).join(''):combatVfx(effect)}</div>${impact}<h2>${escape(title)}</h2>${body}${extra}<div class="actions">${buttons}</div>`;
   }
   const button=(action,label,primary=true,disabled=false)=>`<button class="${primary?'main-button':'alt-button'}" type="button" data-action="${action}"${disabled?' disabled':''}>${label}</button>`;
-  function nextBoosterTurn(preferred=0){
-    const next=[preferred,1-preferred].find(index=>state.players[index]?.boosters?.length);
-    if(next===undefined){state.phase='deck-build';state.deckTurn=0;state.selectedCard=null}
-    else{state.boosterTurn=next;state.phase='booster-ready'}
-    render();
-  }
-  function openCurrentBooster(){
-    if(state.phase!=='booster-ready')return;
-    const owner=state.boosterTurn,p=state.players[owner],booster=p.boosters.shift();
-    if(!booster)return nextBoosterTurn(1-owner);
-    const cards=drawBoosterCards(booster,owner);p.hand.push(...cards);
-    state.boosterReveal={owner,source:booster.source,cards,id:booster.id};state.phase='booster-opening';render();
-    state.boosterTimer=setTimeout(()=>{state.boosterTimer=null;if(state.phase!=='booster-opening')return;state.phase='booster-reveal';render()},window.matchMedia('(prefers-reduced-motion: reduce)').matches?30:1950);
-  }
-  function finishBoosterReveal(){if(state.phase!=='booster-reveal')return;state.boosterReveal=null;nextBoosterTurn(1-state.boosterTurn)}
-  function selectBoosterCard(index){
-    if(state.phase!=='deck-build'||!Number.isInteger(index)||!state.players[state.deckTurn].hand[index])return;
-    state.selectedCard=state.selectedCard===index?null:index;state.lastPlaced=null;render();
-  }
-  function placeBoosterCard(slot){
-    if(state.phase!=='deck-build'||!Number.isInteger(slot)||slot<0||slot>3||state.selectedCard===null)return;
-    const p=state.players[state.deckTurn],card=p.hand[state.selectedCard];
-    if(!card||card.rarity!==slotRarities[slot])return;
-    const previous=p.slots[slot];p.slots[slot]=card;p.hand.splice(state.selectedCard,1);if(previous)p.hand.push(previous);
-    state.lastPlaced={owner:state.deckTurn,slot,cardId:card.id};
-    state.selectedCard=null;render();
-  }
-  function finishDeckTurn(){
-    if(state.phase!=='deck-build')return;
-    if(state.deckTurn===0){state.deckTurn=1;state.selectedCard=null;state.lastPlaced=null;render()}
-    else{state.phase='end';render()}
-  }
-  function boosterCardMarkup(card,index,selectable=false){
-    const content=`<span class="booster-card-rarity">${rarityLabel[card.rarity]}</span><span class="booster-card-art">${itemArt(card)}</span><b>${escape(card.name)}</b><small>${escape(card.task)}</small><span class="booster-card-kind">${escape({outfit:'Tenue',pink:'Coffre rose',curse:'Malédiction',relic:'Défi'}[card.kind]||'Défi')}</span>`;
-    return selectable?`<button class="booster-card rarity-${card.rarity} ${state.selectedCard===index?'selected':''}" type="button" data-action="booster-select" data-item="${index}" aria-pressed="${state.selectedCard===index}">${content}</button>`:`<article class="booster-card rarity-${card.rarity}" style="--card-index:${index}">${content}</article>`;
-  }
-  function renderBoosters(){
-    $('choiceZone').hidden=true;$('caption').hidden=true;$('overlay').hidden=false;$('stage').classList.add('is-finished');$('encounter').className='encounter booster-view';
-    const owner=state.boosterTurn,p=state.players[owner],reveal=state.boosterReveal,opening=state.phase==='booster-opening',ready=state.phase==='booster-ready';
-    const heading=ready?`À ${escape(p.name)} d’ouvrir`:opening?'Le sceau cède…':reveal.cards.length?`${reveal.cards.length} carte${reveal.cards.length>1?'s':''} découverte${reveal.cards.length>1?'s':''}`:'Le paquet était vide';
-    const pack=`<div class="booster-theatre ${opening?'is-opening':''} ${ready?'is-ready':''}" aria-label="Booster ${opening?'en cours d’ouverture':'scellé'}"><div class="booster-halo"></div><div class="booster-card-backs" aria-hidden="true"><i></i><i></i><i></i></div><div class="booster-pack-body"></div><div class="booster-pack-tear"></div><div class="booster-flash"></div><div class="booster-shards" aria-hidden="true">${Array.from({length:12},(_,i)=>`<i style="--shard:${i};--angle:${i*30}deg;--shard-x:${Math.round(Math.cos(i*Math.PI/6)*120)}px;--shard-y:${Math.round(Math.sin(i*Math.PI/6)*120)}px"></i>`).join('')}</div></div>`;
-    $('encounter').innerHTML=`<span class="micro">OUVERTURE DES BOOSTERS · CHACUN SON TOUR</span><h2>${heading}</h2><p class="booster-subtitle">${ready?`${p.boosters.length} paquet${p.boosters.length>1?'s':''} à ouvrir · l’autre héros regarde` :opening?'Déchire le sceau. Les cartes arrivent…':`${escape(p.name)} garde ces cartes en main pour composer sa journée.`}</p>${ready||opening?pack:''}${state.phase==='booster-reveal'?(reveal.cards.length?`<div class="booster-reveal-grid">${reveal.cards.map((card,i)=>boosterCardMarkup(card,i)).join('')}</div>`:'<div class="booster-empty"><span>✦</span><p>Pas de carte cette fois. Le prochain paquet peut tout changer.</p></div>'):''}<div class="actions">${ready?button('booster-open','Déchirer le booster'):state.phase==='booster-reveal'?button('booster-next','Passer le paquet'):''}</div>`;
-  }
-  function renderDeckBuild(){
-    $('choiceZone').hidden=true;$('caption').hidden=true;$('overlay').hidden=false;$('stage').classList.add('is-finished');$('encounter').className='encounter booster-view deck-build-view';
-    const index=state.deckTurn,p=state.players[index],selected=p.hand[state.selectedCard],slots=p.slots.map((card,i)=>`<button class="day-slot rarity-${slotRarities[i]} ${selected?.rarity===slotRarities[i]?'can-place':''} ${state.lastPlaced?.owner===index&&state.lastPlaced.slot===i&&state.lastPlaced.cardId===card?.id?'just-placed':''}" type="button" data-action="booster-place" data-value="${i}" aria-label="Emplacement ${rarityLabel[slotRarities[i]]}${card?` : ${escape(card.name)}`:''}"><span>${i<2?`Normale ${i+1}`:rarityLabel[slotRarities[i]]}</span>${card?`<b>${escape(card.name)}</b><small>${escape(card.task)}</small>`:'<b>Emplacement libre</b>'}</button>`).join('');
-    $('encounter').innerHTML=`<span class="micro">LES DÉFIS DE LA JOURNÉE</span><h2>${escape(p.name)} compose sa main</h2><p class="booster-subtitle">Choisis une carte, puis touche un emplacement de la même rareté. Tu peux remplacer une carte déjà posée.</p><div class="day-slots">${slots}</div><h3>Cartes en main · ${p.hand.length}</h3>${p.hand.length?`<div class="booster-hand">${p.hand.map((card,i)=>boosterCardMarkup(card,i,true)).join('')}</div>`:'<p class="booster-no-cards">Aucune carte en main.</p>'}<div class="actions">${button('booster-finish',index===0?'Valider · au tour de Clémentis':'Valider les défis du jour')}</div>`;
-  }
   function renderFinalCards(){
     $('choiceZone').hidden=true;$('caption').hidden=true;$('overlay').hidden=false;$('stage').classList.add('is-finished');$('encounter').className='encounter final-sheet-view';
-    const cards=state.players.map((p,ownerIndex)=>`<article class="final-card ${(state.winner===p||state.teamVictory)?'winner':''}"><div class="final-hero"><span class="final-weapon" aria-hidden="true">${weaponIcon(p.weapon)}</span><div><h3>${escape(p.name)} ${(state.winner===p||state.teamVictory)?'✦':''}</h3><p class="score">${p.hp} ♥ · ${p.rooms+(p.finalWon?1:0)}/${monsterTotal(p)} monstres vaincus</p></div></div><div class="final-day-list">${p.slots.map((item,slot)=>`<section class="final-day-card rarity-${slotRarities[slot]}"><span class="final-day-rarity">${slot<2?`Normale ${slot+1}`:rarityLabel[slotRarities[slot]]}</span>${item?`<div class="final-day-content"><span class="final-item-art">${itemArt(item)}</span><span><b>${escape(item.name)}</b><small>${escape(item.task)}</small></span></div>${p.eraseKey?`<button class="erase-item" type="button" data-action="erase-item" data-owner="${ownerIndex}" data-item="${slot}" aria-label="Effacer ${escape(item.name)} de la fiche de ${escape(p.name)}">${itemArt(eraseKey)}<span>Effacer</span></button>`:''}`:'<p class="empty">Libre</p>'}</section>`).join('')}</div></article>`).join('');
-    $('encounter').innerHTML=`<span class="micro">RÉCAPITULATIF · AUJOURD’HUI</span>${state.teamVictory?'<h2>Victoire ensemble !</h2>':state.winner?`<h2>${escape(state.winner.name)} gagne !</h2>`:'<h2>Le donjon vous a vaincus</h2>'}<p class="final-note">Les cartes posées sont vos défis et tenues à réaliser aujourd’hui.</p><div class="final-cards">${cards}</div><div class="actions">${button('restart','↻ Nouveau donjon')}</div>`;
+    const labels={relic:'Reliques',curse:'Malédictions',pink:'Coffres roses',outfit:'Tenue'};
+    const cards=state.players.map((p,ownerIndex)=>{const list=kind=>{const items=p.items.filter(item=>item.kind===kind);return items.length?`<ul>${items.map(item=>`<li class="final-item ${kind==='curse'?'curse':kind==='pink'?'pink':''}"><span class="final-item-art">${itemArt(item)}</span><span class="final-item-copy"><b>${escape(item.name)}</b><span>${escape(item.task)}</span></span>${p.eraseKey?`<button class="erase-item" type="button" data-action="erase-item" data-owner="${ownerIndex}" data-item="${p.items.indexOf(item)}" aria-label="Effacer ${escape(item.name)} de la fiche de ${escape(p.name)}">${itemArt(eraseKey)}<span>Effacer</span></button>`:''}</li>`).join('')}</ul>`:'<p class="empty">Aucune</p>'};return `<article class="final-card ${(state.winner===p||state.teamVictory)?'winner':''}"><div class="final-hero"><span class="final-weapon" aria-hidden="true">${weaponIcon(p.weapon)}</span><div><h3>${escape(p.name)} ${(state.winner===p||state.teamVictory)?'✦':''}</h3><p class="score">${p.hp} ♥ · ${p.rooms+(p.finalWon?1:0)}/${monsterTotal(p)} monstres vaincus · ${p.coins||0} pièces</p></div></div>${p.eraseKey?'<p class="key-instruction">Une clef : efface une mission ci-dessous.</p>':''}${Object.keys(labels).map(kind=>`<section class="final-group ${kind}"><h4><span class="final-heading-icon" aria-hidden="true">${finalItemIcon(kind)}</span>${labels[kind]}</h4>${list(kind)}</section>`).join('')}</article>`}).join('');
+    $('encounter').innerHTML=`<span class="micro">VOTRE BUTIN · AUJOURD’HUI</span>${state.teamVictory?'<h2>Victoire ensemble !</h2>':state.winner?`<h2>${escape(state.winner.name)} gagne !</h2>`:'<h2>Le donjon vous a vaincus</h2>'}<div class="final-cards">${cards}</div><div class="actions">${state.players.some((_,i)=>shopChests.some(chest=>canBuyChest(chest,i)))?button('shop-reopen','Retour au shop',false):''}${button('restart','↻ Nouveau donjon')}</div>`;
   }
   function renderEncounter(){
     if(state.phase==='combat-ready'||state.phase==='final-ready'){
       const final=state.phase==='final-ready',enemy=final?state.finalChallenge:state.enemy,monster=final?finalBoss():enemy.monster;
       const p=player(),roster=`<article class="prep-player prep-summary is-active"><b>${escape(p.name)}</b><div class="health" role="img" aria-label="${p.hp} cœurs sur ${p.max}">${Array.from({length:p.max},(_,i)=>heart(i<p.hp)).join('')}</div></article>`;
-      panel(final?monster.name:enemyName(enemy),final?'BOSS DE ZONE':enemy.curse?'MALÉDICTION':enemy.foes?.length>1?'DUO DE MONSTRES':'AVANT LE COMBAT',final?bossSprite():enemyArt(enemy),`<div class="prep-monster-stats"><div class="prep-stat">${final?monsterHearts(enemy.hp,enemy.max,true):enemyHealth(enemy)}</div><div class="prep-stat"><span class="micro">POINTS D’ATTAQUE</span><strong class="prep-attack">⚔ ${enemy.damage} ♥${final?'<small>2 chacun à deux · 4 en solo</small>':enemy.foes?.length>1?'<small>Chaque coup réussi touche les deux.</small>':''}</strong>${!final&&(enemy.foes||[enemy]).some(foe=>thiefIds.has(foe.monster.id))?'<small>Peut voler un booster sur un D6 raté</small>':''}</div></div>${final?finalRoster():`<div class="prep-roster single">${roster}</div>`}${final?entryGiftMarkup():''}${state.difficulty==='theatre'?`<p class="thread-choice">${enemy.threadCut?'Fils coupés : −1 à chaque D6, +1 dégât par coup réussi.':'Fils intacts : règles normales.'}</p>`:''}`,`${state.difficulty==='theatre'?button('thread-toggle',enemy.threadCut?'Garder les fils':'Couper les fils · −1 D6 / +1 dégât',false):''}${button('reveal-challenge','Commencer',true)}`);
+      panel(final?monster.name:enemyName(enemy),final?'BOSS DE ZONE':enemy.curse?'MALÉDICTION':enemy.foes?.length>1?'DUO DE MONSTRES':'AVANT LE COMBAT',final?bossSprite():enemyArt(enemy),`<div class="prep-monster-stats"><div class="prep-stat">${final?monsterHearts(enemy.hp,enemy.max,true):enemyHealth(enemy)}</div><div class="prep-stat"><span class="micro">POINTS D’ATTAQUE</span><strong class="prep-attack">⚔ ${enemy.damage} ♥${final?'<small>2 chacun à deux · 4 en solo</small>':enemy.foes?.length>1?'<small>Chaque coup réussi touche les deux.</small>':''}</strong>${!final&&(enemy.foes||[enemy]).some(foe=>thiefIds.has(foe.monster.id))?`<small>Vole ${state.difficulty==='gold'?'3–7':'1–3'} pièces sur un D6 raté</small>`:''}</div></div>${final?finalRoster():`<div class="prep-roster single">${roster}</div>`}${final?entryGiftMarkup():''}${state.difficulty==='theatre'?`<p class="thread-choice">${enemy.threadCut?'Fils coupés : −1 à chaque D6, +1 dégât par coup réussi.':'Fils intacts : règles normales.'}</p>`:''}`,`${state.difficulty==='theatre'?button('thread-toggle',enemy.threadCut?'Garder les fils':'Couper les fils · −1 D6 / +1 dégât',false):''}${button('reveal-challenge','Commencer',true)}`);
       return;
     }
     if(state.phase==='combat'){
@@ -1319,7 +1181,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     }else if(state.phase==='combat-result'){
       const r=state.result,e=state.enemy;panel(r.title,r.badge,enemyArt(e),`${enemyHealth(e)}${r.roll?battleDie(r.roll):''}${rollReadout(r.rollDetails)}<p class="log">${escape(r.text)}</p>${itemMarkup(r.item)}${dropMarkup(r.drop)}${dropMarkup(r.extraDrop)}${dropMarkup(r.keyDrop)}${autoPotionMarkup()}`,ongoingFight('combat')?'<span class="result-followup">Défi suivant…</span>':button('combat-next',r.nextLabel));
     }else if(state.phase==='event'){
-      const r=state.result;panel(r.title,r.kind==='hole'?'CHUTE':r.kind==='tidal'?'MARÉE':r.kind==='cache'?'RÉSERVE':r.kind==='treasure'?'BOOSTERS':r.kind==='wardrobe'?'ÉQUIPEMENT':r.kind==='pink'?'COFFRE ROSE':'PIÈGE',r.kind==='hole'?abyssArt():r.kind==='pink'?pinkChestSprite():['cache','treasure','tidal'].includes(r.kind)?chestSprite('gold'):r.kind==='wardrobe'?itemArt({kind:'outfit',name:'Vestiaire'}):itemArt({name:'Sceau du piège',kind:'curse',task:'Bouclier brisé'}),`<p class="challenge">${escape(r.text)}</p>${itemMarkup(r.item)}${dropMarkup(r.drop)}${dropMarkup(r.extraDrop)}${dropMarkup(r.keyDrop)}${autoPotionMarkup()}`,button('event-next',r.kind==='hole'?'Se relever':player().hp?'Continuer':'Passer le relais'));
+      const r=state.result;panel(r.title,r.kind==='hole'?'CHUTE':r.kind==='tidal'?'MARÉE':r.kind==='cache'?'RÉSERVE':r.kind==='treasure'?'PIÈCES':r.kind==='wardrobe'?'ÉQUIPEMENT':r.kind==='pink'?'COFFRE ROSE':'PIÈGE',r.kind==='hole'?abyssArt():r.kind==='pink'?pinkChestSprite():['cache','treasure','tidal'].includes(r.kind)?chestSprite('gold'):r.kind==='wardrobe'?itemArt(r.drop||{kind:'outfit',name:'Vestiaire'}):itemArt({name:'Sceau du piège',kind:'curse',task:'Bouclier brisé'}),`<p class="challenge">${escape(r.text)}</p>${itemMarkup(r.item)}${dropMarkup(r.drop)}${dropMarkup(r.extraDrop)}${dropMarkup(r.keyDrop)}${autoPotionMarkup()}`,button('event-next',r.kind==='hole'?'Se relever':player().hp?'Continuer':'Passer le relais'));
     }else if(state.phase==='pink-chest'){
       const offer=state.pinkOffer;panel('Trésor enchanté','COFFRE ROSE',pinkChestSprite(),`<p class="shop-recipient">${escape(player().name)} a ouvert · mission pour ${escape(state.players[offer.executorIndex].name)}</p>${itemMarkup(offer)}<span class="safeword-mark">ABRICOT</span>`,button('pink-next','Continuer'));
     }else if(state.phase==='final-challenge'){
@@ -1328,10 +1190,6 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
       const f=state.finalChallenge;panel(finalBoss().name,'ATTAQUE',bossSprite(),`${monsterHearts(f.hp,f.max,true)}${finalDice(null,true)}`,'');
     }else if(state.phase==='final-result'){
       const r=state.result,f=state.finalChallenge;panel(r.title,'BOSS DE ZONE',bossSprite(),`${monsterHearts(f.hp,f.max,true,['hit','defeat'].includes(r.effect)?r.damage:0)}${r.rolls?.length?finalDice(r.rolls):''}<p class="log">${escape(r.text)}</p>${finalRoster(r.losses||[])}${autoPotionMarkup()}`,ongoingFight('final')?'<span class="result-followup">Défi suivant…</span>':button('final-next',f.hp?'Voir le butin':'Victoire · voir le butin'));
-    }else if(['booster-ready','booster-opening','booster-reveal'].includes(state.phase)){
-      renderBoosters();
-    }else if(state.phase==='deck-build'){
-      renderDeckBuild();
     }else if(state.phase==='allocation'){
       renderAllocation();
     }else if(state.phase==='allocation-rolling'){
@@ -1377,11 +1235,11 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     state.rollTimer=setTimeout(()=>{state.rollTimer=null;if(state.phase==='combat-rolling')resolveAttack(d)},window.matchMedia('(prefers-reduced-motion: reduce)').matches?20:850);
   }
   function resolveAttack(d){
-    const e=state.enemy;let title,text,nextLabel,item=null,drop=null,extraDrop=null,keyDrop=null,effect,damage;
+    const e=state.enemy;let title,text,nextLabel,item=null,drop=null,extraDrop=null,keyDrop=null,coinsGain=0,effect,damage;
     if(d.total>=3){const strike=(d.raw===6?d.critical:(d.hitDamage??weapon().damage??1))+(player().power||0)+(d.threadCut?1:0),foes=e.foes||[e];player().power=0;damage=0;for(const foe of foes){const dealt=Math.min(foe.hp,strike);foe.hp-=dealt;damage+=dealt}e.hp=foes.reduce((n,foe)=>n+foe.hp,0);e.damage=foes.reduce((n,foe)=>n+(foe.hp>0?foe.damage:0),0);effect=e.hp?'hit':'defeat';title=e.hp?'Touché !':foes.length>1?'Duo vaincu !':'Monstre vaincu !';text=`⚔ −${damage} PV ${foes.length>1?'aux monstres':'au monstre'}`;nextLabel=e.hp?'Continuer':foes.length>1?'Monstres vaincus':'Monstre vaincu';
-      if(e.hp===0&&!e.rewardPaid){e.rewardPaid=true;grantBooster(state.active,e.boss?'elite':'combat');if(state.difficulty==='gold')grantBooster(state.active,'gold');if(Math.random()<.35)grantBooster(1-state.active,'shared');if(!player().potionReceived)extraDrop=ensurePotion(state.active);keyDrop=tryKeyDrop();text+=state.difficulty==='gold'?' · deux boosters obtenus':' · booster obtenu'}
-    }else{damage=takeDamage(e.damage);effect='hurt';title=player().hp?'Raté · riposte !':'K.O.';text=`Jet raté · ${damageText(damage)}${stealBooster(e)?' · un booster volé':''}`;nextLabel=player().hp?'Continuer':'Passer le relais'}
-    state.result={title,text,roll:d.raw,rollDetails:d,badge:`D6 ${d.raw}${d.raw===6?' · 6 naturel':''}`,nextLabel,item,drop,extraDrop,keyDrop,effect,damage};state.phase='combat-result';render();queueAdvance('combat');
+      if(e.hp===0&&!e.rewardPaid){e.rewardPaid=true;coinsGain=state.difficulty==='hard'?random(13)+7:state.difficulty==='gold'?random(15)+8:random(11)+5;player().coins=(player().coins||0)+coinsGain;item=activityDrop();if(Math.random()<.65)drop=dropLoot();if(!player().potionReceived)extraDrop=ensurePotion(state.active);keyDrop=tryKeyDrop();text+=` · +${coinsGain} pièces`}
+    }else{damage=takeDamage(e.damage);effect='hurt';title=player().hp?'Raté · riposte !':'K.O.';const stolen=stealCoins(e);text=`Jet raté · ${damageText(damage)}${stolen?` · −${stolen} pièces volées`:''}`;nextLabel=player().hp?'Continuer':'Passer le relais'}
+    state.result={title,text,roll:d.raw,rollDetails:d,badge:`D6 ${d.raw}${d.raw===6?' · 6 naturel':''}`,nextLabel,item,drop,extraDrop,keyDrop,coinsGain,effect,damage};state.phase='combat-result';render();queueAdvance('combat');
   }
   function failChallenge(reason){
     const phase=state.phase;stopChallengeTimer();if(!['combat','final-challenge'].includes(phase))return;
@@ -1398,13 +1256,13 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     state.rollTimer=setTimeout(()=>{state.rollTimer=null;if(state.phase==='final-rolling')resolveFinalRoll(rolls)},window.matchMedia('(prefers-reduced-motion: reduce)').matches?20:850);
   }
   function resolveFinalRoll(rolls){
-    const f=state.finalChallenge;let damage=0,losses=[],effect,title,text;
+    const f=state.finalChallenge;let damage=0,losses=[],coinGains=[],effect,title,text;
     const hits=rolls.filter(d=>d.total>=3);
-    if(hits.length){for(const d of hits){const p=state.players[d.index];damage+=(d.raw===6?d.critical:(d.hitDamage??weapons.find(w=>w.id===p.weapon).damage??1))+(p.power||0)+(d.threadCut?1:0);p.power=0}damage=Math.min(f.hp,damage);f.hp-=damage;effect=f.hp?'hit':'defeat';title=f.hp?'Boss blessé':'Boss vaincu !';text=`⚔ −${damage} PV au boss`;if(!f.hp&&!f.rewardPaid){f.rewardPaid=true;state.players.forEach((_,index)=>grantBooster(index,'boss'));text+=' · un booster royal chacun'}}
+    if(hits.length){for(const d of hits){const p=state.players[d.index];damage+=(d.raw===6?d.critical:(d.hitDamage??weapons.find(w=>w.id===p.weapon).damage??1))+(p.power||0)+(d.threadCut?1:0);p.power=0}damage=Math.min(f.hp,damage);f.hp-=damage;effect=f.hp?'hit':'defeat';title=f.hp?'Boss blessé':'Boss vaincu !';text=`⚔ −${damage} PV au boss`;if(!f.hp&&!f.rewardPaid){f.rewardPaid=true;coinGains=livingPlayers().map(({p,index})=>{const amount=state.difficulty==='gold'?random(26)+5:random(20)+1;p.coins=(p.coins||0)+amount;return {index,amount}});text+=' · '+coinGains.map(g=>`${state.players[g.index].name} +${g.amount} pièces`).join(' · ')}}
     else{losses=takeFinalDamage();damage=losses.reduce((n,d)=>n+d.damage,0);effect='hurt';title=livingPlayers().length?'Riposte du boss':'K.O.';text=`Jets ratés · ${finalDamageText(losses)}`}
-    state.result={title,text,rolls,losses,nextLabel:f.hp?'Continuer':'Voir le butin',effect,damage};state.phase='final-result';render();queueAdvance('final');
+    state.result={title,text,rolls,losses,coinGains,nextLabel:f.hp?'Continuer':'Voir le butin',effect,damage};state.phase='final-result';render();queueAdvance('final');
   }
-  function finishGame(winner){cancelAdvance();stopChallengeTimer();state.autoNotes=[];state.winner=winner;state.boosterReveal=null;state.deckTurn=0;state.selectedCard=null;state.lastPlaced=null;nextBoosterTurn(0)}
+  function finishGame(winner){cancelAdvance();stopChallengeTimer();state.autoNotes=[];state.allocationRunning=false;state.winner=winner;state.shopPrices??=Object.fromEntries(shopChests.map(chest=>[chest.id,chest.min+random(chest.max-chest.min+1)]));state.players.forEach(p=>p.shopStock??=Object.fromEntries(shopChests.map(chest=>[chest.id,random(2)+1])));state.shopPlayer=0;state.shopReveal=null;state.phase='shop';render()}
   function nextFinal(){
     cancelAdvance();state.autoNotes=[];state.finalReady={J1:false,J2:false};resolveAutoPotions();
     if(!state.finalChallenge.hp){livingPlayers().forEach(({p})=>p.finalWon=true);state.teamVictory=livingPlayers().length===2;finishGame(livingPlayers()[0]?.p||null);return}
@@ -1417,18 +1275,19 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
     if(state.players.every(p=>p.hp===0)){finishGame(null);return}
     const other=1-state.active;if(state.players[other].hp>0)state.active=other;prepareDoors();
   }
-  function restart(){clearDoorTap();cancelAdvance();if(state.allocationTimer)clearTimeout(state.allocationTimer);state.allocationTimer=null;state.allocationRunning=false;state.autoNotes=[];stopChallengeTimer();if(state.doorTimer)clearTimeout(state.doorTimer);if(state.wheelTimer)clearTimeout(state.wheelTimer);if(state.rollTimer)clearTimeout(state.rollTimer);if(state.coinTimer)clearTimeout(state.coinTimer);if(state.boosterTimer)clearTimeout(state.boosterTimer);state.doorTimer=null;state.wheelTimer=null;state.rollTimer=null;state.coinTimer=null;state.boosterTimer=null;state.phase='intro';state.players=[];state.active=0;state.shared=[];state.roomGoal=1;state.roomCap=5;state.difficulty=null;state.weaponPicks=[null,null];state.wheelSpun=false;state.doorSet=[];state.doorProbe=null;state.enemy=null;state.challenge=null;state.finalChallenge=null;state.minigame=null;state.pinkOffer=null;state.result=null;state.pendingAwards=[];state.allocationIndex=0;state.lastAllocation=null;state.coinOutcome=null;state.nextBoosterId=1;state.boosterTurn=0;state.boosterReveal=null;state.deckTurn=0;state.selectedCard=null;state.lastPlaced=null;state.history.clear();Object.values(state.pinkHistory).forEach(seen=>seen.clear());Object.values(state.monsterHistory).forEach(seen=>seen.clear());state.winner=null;state.teamVictory=false;state.shopPrices=null;state.shopPlayer=0;state.shopReveal=null;state.finalReady={J1:false,J2:false};$('stage').classList.remove('is-finished');$('stage').classList.remove('is-opening');$('setup').hidden=false;$('game').hidden=true;$('restart').hidden=true;showIntro()}
+  function restart(){clearDoorTap();cancelAdvance();if(state.allocationTimer)clearTimeout(state.allocationTimer);state.allocationTimer=null;state.allocationRunning=false;state.autoNotes=[];stopChallengeTimer();if(state.doorTimer)clearTimeout(state.doorTimer);if(state.wheelTimer)clearTimeout(state.wheelTimer);if(state.rollTimer)clearTimeout(state.rollTimer);if(state.coinTimer)clearTimeout(state.coinTimer);state.doorTimer=null;state.wheelTimer=null;state.rollTimer=null;state.coinTimer=null;state.phase='intro';state.players=[];state.active=0;state.shared=[];state.roomGoal=1;state.roomCap=5;state.difficulty=null;state.weaponPicks=[null,null];state.wheelSpun=false;state.doorSet=[];state.doorProbe=null;state.enemy=null;state.challenge=null;state.finalChallenge=null;state.minigame=null;state.pinkOffer=null;state.result=null;state.pendingAwards=[];state.allocationIndex=0;state.lastAllocation=null;state.coinOutcome=null;state.history.clear();Object.values(state.pinkHistory).forEach(seen=>seen.clear());Object.values(state.monsterHistory).forEach(seen=>seen.clear());state.winner=null;state.teamVictory=false;state.shopPrices=null;state.shopPlayer=0;state.shopReveal=null;state.finalReady={J1:false,J2:false};$('stage').classList.remove('is-finished');$('stage').classList.remove('is-opening');$('setup').hidden=false;$('game').hidden=true;$('restart').hidden=true;showIntro()}
   $('setup').addEventListener('click',e=>{const weapon=e.target.closest('[data-weapon]');if(weapon){const i=Number(weapon.dataset.weaponPlayer);state.weaponPicks[i]=weapon.dataset.weapon;$('setupError').textContent='';$('setup').querySelectorAll(`[data-weapon-player="${i}"]`).forEach(b=>b.setAttribute('aria-pressed',String(b===weapon)));return}const action=e.target.closest('[data-action]')?.dataset.action;if(action==='setup-start')showSetup();if(action==='spin-wheel')spinWheel();if(action==='save-setup')saveSetup()});
   let doorTapTimer=null,doorTapIndex=null;
   function clearDoorTap(){if(doorTapTimer)clearTimeout(doorTapTimer);doorTapTimer=null;doorTapIndex=null}
   window.donjonHandleDoorTap=door=>{
     const index=Number(door?.dataset.door);if(!Number.isInteger(index)||!['doors','final-doors'].includes(state.phase))return;
-    $('choiceZone').querySelector(`[data-action="open-door"][data-door="${index}"]`)?.click();
+    if(state.phase==='final-doors'||state.doorProbe){if(!state.doorProbe||state.doorProbe.index===index)$('choiceZone').querySelector(`[data-action="open-door"][data-door="${index}"]`)?.click();return}
+    if(doorTapTimer&&doorTapIndex===index){clearDoorTap();$('choiceZone').querySelector(`[data-action="knock-door"][data-door="${index}"]`)?.click();return}
+    clearDoorTap();doorTapIndex=index;doorTapTimer=setTimeout(()=>{doorTapTimer=null;doorTapIndex=null;$('choiceZone').querySelector(`[data-action="open-door"][data-door="${index}"]`)?.click()},280);
   };
   $('game').addEventListener('click',e=>{const door=e.target.closest('.door[data-door]');if(door)window.donjonHandleDoorTap(door)});
   $('game').addEventListener('click',e=>{const action=e.target.closest('[data-action]')?.dataset.action;if(!action)return;
-    if(action==='booster-open')openCurrentBooster();else if(action==='booster-next')finishBoosterReveal();else if(action==='booster-select')selectBoosterCard(Number(e.target.closest('[data-item]')?.dataset.item));else if(action==='booster-place')placeBoosterCard(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='booster-finish')finishDeckTurn();
-    else if(action==='shop-player'&&state.phase==='shop'){const index=Number(e.target.closest('[data-owner]').dataset.owner);if(state.players[index]){state.shopPlayer=index;state.shopReveal=null;render()}}else if(action==='shop-buy')buyShopChest(e.target.closest('[data-shop]').dataset.shop);else if(action==='shop-close')closeShop();else if(action==='shop-reopen')reopenShop();else if(action==='erase-item'){const target=e.target.closest('[data-owner]');deleteFinalItem(Number(target.dataset.owner),Number(target.dataset.item))}else if(action==='rps-pick')playRps(e.target.closest('[data-choice]')?.dataset.choice);else if(action==='rps-ready')readyRps();else if(action==='rps-resolve')resolveRps();else if(action.startsWith('ttt-cell-'))playTtt(Number(action.slice(9)));else if(action==='matches-take')takeMatches(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='parity-pick')chooseParity(e.target.closest('[data-value]')?.dataset.value);else if(action==='parity-count')chooseFingers(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='parity-ready')readyParity();else if(action==='rune-hide')hideRunes();else if(action==='rune-pick')chooseRune(e.target.closest('[data-value]')?.dataset.value);else if(action==='coin-pick')chooseCoin(e.target.closest('[data-value]')?.dataset.value);else if(action==='minigame-resolve')resolveNewMinigame();else if(action==='minigame-reset')resetMinigame();
+    if(action==='shop-player'&&state.phase==='shop'){const index=Number(e.target.closest('[data-owner]').dataset.owner);if(state.players[index]){state.shopPlayer=index;state.shopReveal=null;render()}}else if(action==='shop-buy')buyShopChest(e.target.closest('[data-shop]').dataset.shop);else if(action==='shop-close')closeShop();else if(action==='shop-reopen')reopenShop();else if(action==='erase-item'){const target=e.target.closest('[data-owner]');deleteFinalItem(Number(target.dataset.owner),Number(target.dataset.item))}else if(action==='rps-pick')playRps(e.target.closest('[data-choice]')?.dataset.choice);else if(action==='rps-ready')readyRps();else if(action==='rps-resolve')resolveRps();else if(action.startsWith('ttt-cell-'))playTtt(Number(action.slice(9)));else if(action==='matches-take')takeMatches(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='parity-pick')chooseParity(e.target.closest('[data-value]')?.dataset.value);else if(action==='parity-count')chooseFingers(Number(e.target.closest('[data-value]')?.dataset.value));else if(action==='parity-ready')readyParity();else if(action==='rune-hide')hideRunes();else if(action==='rune-pick')chooseRune(e.target.closest('[data-value]')?.dataset.value);else if(action==='coin-pick')chooseCoin(e.target.closest('[data-value]')?.dataset.value);else if(action==='minigame-resolve')resolveNewMinigame();else if(action==='minigame-reset')resetMinigame();
     else if(action==='open-door')openDoor(Number(e.target.closest('[data-door]')?.dataset.door));
     else if(action==='knock-door')probeDoor(Number(e.target.closest('[data-door]')?.dataset.door));
     else if(action==='start-allocation')startAllocation();
@@ -1439,7 +1298,7 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   });
   $('restart').addEventListener('click',()=>{if(window.confirm('Recommencer la partie depuis le début ?'))restart()});
   showIntro();
-  const transient=new Set(['wheelTimer','rollTimer','advanceTimer','allocationTimer','challengeTimer','coinTimer','doorTimer','hideTimer','boosterTimer']);
+  const transient=new Set(['wheelTimer','rollTimer','advanceTimer','allocationTimer','challengeTimer','coinTimer','doorTimer','hideTimer']);
   window.donjonLive.start({
     capture(){
       return {
@@ -1451,7 +1310,6 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
       const restored=JSON.parse(JSON.stringify(snapshot.gameState||{}),(key,value)=>value&&Array.isArray(value.__set)?new Set(value.__set):value);
       if(state.challengeTimer)clearInterval(state.challengeTimer);
       Object.assign(state,restored);
-      state.players.forEach(p=>{p.boosters??=[];p.hand??=[];p.slots??=[null,null,null,null]});
       if(state.winner)state.winner=state.players.find(p=>p.name===state.winner.name)||state.winner;
       const view=snapshot.view||{};
       $('setup').innerHTML=view.setup||'';
@@ -1465,7 +1323,6 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
       if(['doors','final-doors'].includes(state.phase))renderDoors();
       if(state.players.length&&$('sceneCanvas'))paintScene(state.difficulty,state.players[state.active]?.rooms+state.players[state.active]?.detours||0);
       if(host&&state.challengeDeadline&&['combat','final-challenge'].includes(state.phase))state.challengeTimer=setInterval(tickChallengeTimer,100);
-      if(host&&state.phase==='booster-opening'&&!state.boosterTimer)state.boosterTimer=setTimeout(()=>{state.boosterTimer=null;if(state.phase==='booster-opening'){state.phase='booster-reveal';render()}},900);
       if(!host&&state.challengeDeadline)updateChallengeTimer();
     },
     canAct(actor,target){
@@ -1473,8 +1330,6 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
       if(target.id==='restart')return actor===window.donjonLive.hostRole;
       if(state.phase==='intro')return actor===window.donjonLive.hostRole;
       if(state.phase==='setup')return target.dataset.weapon!==undefined?Number(target.dataset.weaponPlayer)===actorIndex:actor===window.donjonLive.hostRole;
-      if(['booster-ready','booster-opening','booster-reveal'].includes(state.phase))return actorIndex===state.boosterTurn;
-      if(state.phase==='deck-build')return actorIndex===state.deckTurn;
       if(action==='shop-player')return Number(target.dataset.owner)===actorIndex;
       if(action==='erase-item')return Number(target.dataset.owner)===actorIndex;
       if(state.phase==='shop'&&action==='shop-buy')return state.shopPlayer===actorIndex;
