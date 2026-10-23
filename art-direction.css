@@ -1,0 +1,382 @@
+/* Le Donjon — original painted-fantasy art direction.
+   All mechanics and accessible controls remain in the HTML/JS. */
+:root{
+  --bg:#0c1424;
+  --panel:#142236;
+  --raised:#1d3043;
+  --edge:#5b7184;
+  --ink:#f6e9d2;
+  --muted:#b9c4c7;
+  --gold:#e8c995;
+  --sage:#7dc9b7;
+  --red:#ec8d80;
+  --blue:#99c8e1;
+  --black:#080e1b;
+  --realm-accent:#89d8cb;
+  --realm-halo:rgba(75,204,185,.34);
+  --realm-veil:rgba(11,44,56,.19);
+  --font-display:"Iowan Old Style","Baskerville","Palatino Linotype",Georgia,serif;
+}
+html{background:#0b1322}
+body{
+  color:var(--ink);
+  background:
+    radial-gradient(ellipse at 50% -8%,rgba(55,106,123,.36),transparent 52%),
+    radial-gradient(ellipse at 92% 75%,rgba(54,35,91,.24),transparent 43%),
+    linear-gradient(180deg,#0c1727,#0b1222 65%,#101425);
+  background-attachment:fixed;
+  font-family:"Avenir Next",Avenir,system-ui,sans-serif;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:radial-gradient(#b2d2dc 0.5px,transparent .7px);background-size:39px 39px;mask-image:linear-gradient(#000,transparent 72%)}
+.app{width:min(100%,1020px);padding-block:clamp(16px,3vw,30px) max(26px,env(safe-area-inset-bottom))}
+.app :is(h1,h2,h3),#donjonLobby h2{font-family:var(--font-display);font-weight:700;letter-spacing:.035em}
+.app :is(.micro,.kicker,.field-label,.badge),#donjonLobby .micro{font-family:"Avenir Next",Avenir,system-ui,sans-serif;font-size:10px;font-weight:800;letter-spacing:.19em}
+.topbar{position:relative;padding:2px 4px 16px;margin-bottom:18px;border-bottom:1px solid #cfbf9860}
+.topbar::after{content:"✦";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);padding:0 11px;background:#0d1728;color:#d8bf8a;font-size:13px}
+.topbar h1{font-size:clamp(26px,5vw,46px);font-variant:small-caps;letter-spacing:.11em;text-shadow:0 2px 20px #72c8be55}
+.top-actions{align-items:center}
+.donjon-live-badge{border-radius:999px!important;border-color:#6bbba885!important;background:#15383b!important;color:#bceadd!important;box-shadow:0 0 18px #66c4b535}
+.small-button,.alt-button,.main-button{
+  border:1px solid #d7bf8b85;border-radius:10px;
+  box-shadow:inset 0 1px #fff7de30,0 6px 20px #02081288;
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease,border-color .2s ease;
+}
+.main-button{color:#14252e;border-color:#f5dca7;background:linear-gradient(165deg,#ffe8bb,#d8b77c 75%,#c59e68);text-shadow:0 1px #fff4d6aa}
+.alt-button,.small-button{color:#f1e5cc;background:linear-gradient(165deg,#2b4753,#182b3d);border-color:#9ab8ac77}
+.small-button:hover,.alt-button:hover,.main-button:hover{transform:translateY(-2px);box-shadow:inset 0 1px #fff7de55,0 10px 24px #020812aa,0 0 22px #d7c3922c}
+.small-button:active,.alt-button:active,.main-button:active{transform:translateY(1px);box-shadow:inset 0 2px 7px #050d17aa}
+button:focus-visible,input:focus-visible{outline:2px solid #f7dca6;outline-offset:3px}
+
+/* The joined-session threshold shares the same illustrated world as the game. */
+#donjonLobby{overflow-y:auto;align-items:center;padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));background:radial-gradient(circle at 18% 14%,#235267,#0c1729 55%,#090f1e)!important}
+.donjon-lobby-card{
+  width:min(940px,100%);min-height:570px;padding:clamp(30px,5vw,54px);
+  padding-left:min(500px,52vw);
+  border:1px solid #ddc38a99;border-radius:23px;
+  background:
+    linear-gradient(90deg,transparent 0 37%,#0d1b2be8 53%,#0c1929 100%),
+    url("assets/donjon-duo-portal.jpg") 0 45%/52% auto no-repeat,
+    #0c1929;
+  box-shadow:0 30px 90px #020712c9,0 0 80px #5bc5bb1e,inset 0 0 0 5px #122d3e;
+  display:flex;flex-direction:column;justify-content:center;position:relative;isolation:isolate;
+}
+.donjon-lobby-card::after{content:"";position:absolute;inset:10px;border:1px solid #dfc99635;border-radius:17px;pointer-events:none}
+.donjon-lobby-card .micro{color:#e7c991}
+.donjon-lobby-card h2{font-size:clamp(37px,4vw,52px);line-height:1.06;font-variant:small-caps;letter-spacing:.01em;color:#fff0d7;margin:17px 0 12px;text-shadow:0 4px 30px #081522}
+.donjon-lobby-card p{color:#cdd9d7;line-height:1.55}
+.donjon-role-grid{gap:12px;margin:22px 0}
+.donjon-role-grid button{min-height:88px;border:1px solid #b6a78399;border-radius:12px;background:linear-gradient(140deg,#1e4c58,#172c40);box-shadow:inset 0 1px #fff5db2c,0 7px 19px #030d18;transition:transform .2s,border-color .2s,background .2s}
+.donjon-role-grid button:hover,.donjon-role-grid button[aria-pressed="true"],.donjon-role-grid button.selected{transform:translateY(-2px);border-color:#efcf8c;background:linear-gradient(140deg,#326976,#204259)}
+.donjon-room-actions input{border:1px solid #8bb1ac99;border-radius:9px;background:#0d1d2c;color:#fff4df;letter-spacing:.13em}
+.donjon-lobby-card .main-button{margin-top:8px;min-height:51px}
+.donjon-live-status{margin-top:14px;color:#98cabb!important;font-size:12px}
+#donjonPresence:empty,#donjonLiveStatus:empty{display:none}
+
+/* Opening illustration and ritual setup. */
+.setup{position:relative;overflow:hidden;width:min(100%,820px);padding:clamp(21px,4vw,42px);border:1px solid #bda97880;border-radius:18px;background:linear-gradient(150deg,#21394abb,#132437f5 40%,#121e32);box-shadow:0 20px 70px #0108139c,inset 0 0 0 5px #27435a40}
+.setup::before{content:"";position:absolute;inset:9px;border:1px solid #e4c98a24;border-radius:11px;pointer-events:none}
+.setup:has(.intro-scene){max-width:710px;text-align:center}
+.setup .kicker{color:#d9c591}
+.setup .intro-name{font-family:var(--font-display);font-size:clamp(30px,6vw,51px);font-weight:700;font-variant:small-caps;letter-spacing:.055em;color:#fff0d5;text-shadow:0 4px 25px #62d5c048;margin:12px 0 18px}
+.intro-scene,.setup:has(.intro-scene) .intro-scene{height:clamp(270px,43vw,350px);margin:8px auto 19px;border:1px solid #e4c78d9c;border-radius:13px;background:url("assets/donjon-duo-portal.jpg") center 53%/cover no-repeat;box-shadow:inset 0 0 0 5px #10243d55,0 14px 35px #030c1aa6,0 0 25px #53c8ba24}
+.intro-scene svg{display:none}
+.intro-scene::before{inset:7px;border:1px solid #f2e3bb6e;border-radius:8px}
+.intro-companions{gap:15px;margin:5px auto 21px}
+.intro-companions span{font-family:var(--font-display)!important;font-size:clamp(13px,3vw,18px);font-variant:small-caps;letter-spacing:.11em;color:#e7d2aa;border-color:#d3bb8c77}
+.intro-companions i{font-size:20px;color:#8fdfd1}
+.setup:has(.intro-scene) [data-action="setup-start"]{min-width:230px;min-height:52px;border:1px solid #f4da9e;border-radius:10px;background:linear-gradient(165deg,#ffe8bb,#d8b77c 75%,#c59e68);color:#172d38;box-shadow:0 8px 20px #04121baa;letter-spacing:.14em}
+.setup h2:not(.intro-name){font-size:clamp(28px,5vw,40px);font-variant:small-caps;color:#f2dfba}
+.setup .field-label{color:#e1c68f}
+.fixed-name{font-family:var(--font-display);font-size:clamp(19px,3vw,26px);font-variant:small-caps;letter-spacing:.06em;color:#f1e3c9}
+.weapon-choice{border:1px solid #91aeb099;border-radius:10px;background:linear-gradient(145deg,#234256,#172d3c);box-shadow:inset 0 1px #d7f2df1b;transition:transform .2s,border-color .2s,box-shadow .2s}
+.weapon-choice:hover{transform:translateY(-2px);border-color:#e7ce9b;box-shadow:0 6px 16px #040d18}
+.weapon-choice[aria-pressed="true"]{border-color:#f6d493;background:linear-gradient(145deg,#416b71,#23435a);box-shadow:0 0 0 2px #b9e2cb44,inset 0 1px #fff6d733}
+.weapon-choice .weapon-icon{color:#f4d59b}
+.weapon-choice b{font-size:12px;color:#fff0d7}
+.weapon-choice small,.weapon-help,.weapon-legend{color:#bdd2d1!important}
+.stone-wheel-wrap{border:1px solid #d5bc8b9c;border-radius:15px;background:radial-gradient(ellipse at 50% -10%,#62809155,transparent 63%),linear-gradient(145deg,#29475a,#182d3e);box-shadow:inset 0 0 0 5px #91b5ac13,0 12px 35px #040d1b9c}
+.stone-reels{border:1px solid #d8c396a6;border-radius:12px;background:#122539;box-shadow:inset 0 0 0 4px #50758324,0 8px 21px #07132188}
+.stone-reel{border:1px solid #93c3b9a8;border-radius:9px;background:#204556;box-shadow:inset 0 0 13px #091c2e}
+.stone-reel::before{border-radius:9px;background:linear-gradient(#0a1b30d9,transparent 36%,transparent 64%,#0a1b30d9)}
+.stone-reel::after{border-top:1px solid #f0d69d;border-bottom:1px solid #f0d69d;box-shadow:0 0 18px #f3d6aa7a}
+.reel-item{border-bottom:1px solid #8ab9b175;background:linear-gradient(160deg,#b5d5c9,#8cb6b2);color:#15313c;text-shadow:0 1px #eaf8e5;font-weight:800}
+
+/* Ten realms retain their own chromatic identity. */
+.game.theme-easy{--realm-accent:#8adccf;--realm-halo:#4ed7b355;--realm-veil:#0a504238}
+.game.theme-normal{--realm-accent:#b4d594;--realm-halo:#9ed47755;--realm-veil:#44613e38}
+.game.theme-hard{--realm-accent:#ef907c;--realm-halo:#e45e615c;--realm-veil:#68334254}
+.game.theme-gold{--realm-accent:#f1d07f;--realm-halo:#edbd5b66;--realm-veil:#6b522b55}
+.game.theme-clearing{--realm-accent:#b2e6a4;--realm-halo:#9bdc9955;--realm-veil:#2e624544}
+.game.theme-castle{--realm-accent:#e5a7c5;--realm-halo:#dc77af66;--realm-veil:#5a284f55}
+.game.theme-sanctuary{--realm-accent:#d0c5ef;--realm-halo:#ad9fe566;--realm-veil:#51477455}
+.game.theme-returning{--realm-accent:#e3b88b;--realm-halo:#d99e6766;--realm-veil:#68513b55}
+.game.theme-lighthouse{--realm-accent:#a8ebec;--realm-halo:#75dadd66;--realm-veil:#285e7160}
+.game.theme-theatre{--realm-accent:#eea8d9;--realm-halo:#d974bb66;--realm-veil:#622e6355}
+.game{gap:14px}
+.hud{gap:10px}
+.player-card,.game .player-card.active{border:1px solid #a1b7af6d;border-radius:12px;background:linear-gradient(145deg,#1b3348,#112338);box-shadow:inset 0 1px #eaf9e11c,0 5px 18px #030b19a0}
+.player-card.active,.game .player-card.active{border-color:var(--realm-accent);background:linear-gradient(140deg,#315b63,#1a374b);box-shadow:inset 0 1px #fff5dc38,0 0 20px var(--realm-halo),0 8px 22px #020a17aa;opacity:1}
+.hud-top strong{font-family:var(--font-display);font-size:clamp(15px,2.5vw,21px);font-variant:small-caps;letter-spacing:.055em;color:#fff1d7}
+.hud-details{color:#c5d5d1}
+.room-count,.detour-count{color:#d1e2d8;font-weight:700}
+.health .heart-icon.full{color:#f39e97;filter:drop-shadow(0 0 6px #e26468aa)}
+.status-line{min-height:34px;color:#ccdbd7;border-bottom:1px solid #b4bea045;padding-bottom:5px}
+.progress-pip{height:6px;border:1px solid #769494a6;border-radius:99px;background:#1a3a4b}
+.progress-pip.done{background:var(--realm-accent);border-color:var(--realm-accent);box-shadow:0 0 8px var(--realm-halo)}
+.stage,.game.theme-gold .stage,.game.theme-clearing .stage,.game.theme-castle .stage,.theme-sanctuary .stage,.theme-returning .stage,.theme-lighthouse .stage,.theme-theatre .stage{
+  min-height:590px;border:1px solid color-mix(in srgb,var(--realm-accent) 66%,#ad996f);border-radius:15px;
+  background:linear-gradient(180deg,#08182b2e 0%,var(--realm-veil) 45%,#071323ab 100%),url("assets/donjon-hall.jpg") center/cover no-repeat,#14263c;
+  box-shadow:inset 0 0 0 5px #d6c59a15,0 18px 55px #020813bc,0 0 32px var(--realm-halo);
+}
+.stage::before,.game.theme-gold .stage::before,.game.theme-clearing .stage::before,.game.theme-castle .stage::before{inset:0;z-index:0;background:radial-gradient(ellipse at 50% 30%,transparent 25%,#08122388 100%)}
+.stage::after{opacity:.12}
+.stage.is-opening::before{z-index:1}
+.scene-art{opacity:.28!important;pointer-events:none;image-rendering:auto;filter:blur(7px) saturate(.72);transform:scale(1.045);mix-blend-mode:screen}
+.game.theme-clearing .scene-art,.game.theme-gold .scene-art,.game.theme-castle .scene-art{opacity:.36!important}
+.game.theme-sanctuary .scene-art,.game.theme-returning .scene-art,.game.theme-lighthouse .scene-art,.game.theme-theatre .scene-art{opacity:.4!important}
+.scene-flame{display:none}
+.choice-zone{z-index:3;inset:19% 7% 29%;align-items:end;gap:clamp(5px,2.5vw,24px)}
+.choice-zone .door{max-width:188px;filter:drop-shadow(0 15px 12px #050d1bbf)}
+.door-art{image-rendering:auto;shape-rendering:geometricPrecision;filter:drop-shadow(0 2px 9px var(--realm-halo))}
+.choice-zone .door:hover .door-art,.choice-zone .door:focus-visible .door-art{filter:drop-shadow(0 0 15px var(--realm-accent)) brightness(1.1)}
+.choice-zone .door.probed .door-leaf{filter:brightness(.7)}
+.choice-zone .door.tidal .door-art{filter:drop-shadow(0 0 14px #83edeb)}
+.door-omen{border:1px solid var(--omen);border-radius:4px;background:#071320d9;box-shadow:0 0 16px var(--omen),inset 0 0 12px #010914}
+.door-omen b{font-family:"Avenir Next",Avenir,sans-serif;font-size:clamp(9px,1.8vw,12px);letter-spacing:.14em}
+.stage-caption{left:4%;right:4%;bottom:4%;width:auto;max-width:none;transform:none;padding:17px 20px;border:1px solid #d6c28c8a;border-radius:12px;background:linear-gradient(145deg,#10263be8,#0a1c30ed);box-shadow:inset 0 1px #fff3d526,0 8px 28px #020813c9;backdrop-filter:blur(9px)}
+.stage-caption h2{font-family:var(--font-display);font-size:clamp(23px,3.8vw,33px);font-variant:small-caps;letter-spacing:.035em;color:#fff0d6;text-transform:none}
+.stage-caption p:not(:empty){display:block;color:#cadbd7;font-size:12px;line-height:1.5}
+.stage:has(.overlay:not([hidden])){min-height:0}
+.overlay{position:relative;inset:auto;min-height:490px;padding:clamp(11px,3vw,25px);border:0;background:linear-gradient(145deg,#091725d9,#0a1d2de8);backdrop-filter:blur(8px)}
+.encounter,.encounter.monster-scene,.game.theme-gold .encounter,.game.theme-clearing .encounter,.game.theme-castle .encounter,.game.theme-hard .monster-scene,.game.theme-normal .monster-scene{
+  position:relative;width:min(100%,680px);max-height:none;padding:clamp(17px,4vw,32px);
+  border:1px solid color-mix(in srgb,var(--realm-accent) 60%,#e3c78a);border-radius:14px;
+  background:radial-gradient(ellipse at 50% -15%,var(--realm-halo),transparent 56%),linear-gradient(150deg,#22384fef,#11243aef 64%,#172239f2);
+  box-shadow:inset 0 1px #fff3d52c,0 15px 45px #020914a6;
+}
+.encounter::after{content:"";position:absolute;inset:7px;border:1px solid #d6c18b29;border-radius:8px;pointer-events:none}
+.encounter .micro,.encounter .badge{color:var(--realm-accent)}
+.encounter .badge{border:1px solid var(--realm-accent);border-radius:99px;background:#0b2231ad;padding:5px 11px}
+.encounter h2{font-family:var(--font-display);font-size:clamp(28px,5vw,44px);font-variant:small-caps;letter-spacing:.03em;text-transform:none;color:#fff0d8;text-shadow:0 4px 22px var(--realm-halo)}
+.encounter p{color:#d0dbd5}
+.encounter .monster-trait{color:var(--realm-accent);letter-spacing:.13em}
+.monster-scene .enemy-art,.enemy-art,.enemy-art.is-boss{width:clamp(150px,27vw,208px);height:clamp(150px,27vw,208px);margin:14px auto 16px;border:1px solid #d1c7968a;border-radius:50%;background:radial-gradient(circle at 50% 35%,var(--realm-halo),#223c4e77 58%,#0f2239 74%);box-shadow:inset 0 0 0 6px #edd7a71c,0 0 30px var(--realm-halo)}
+.monster-scene .enemy-art::before,.monster-scene .enemy-art::after{display:none}
+.pixel-monster{image-rendering:auto;filter:drop-shadow(0 9px 9px #020d1cb3) drop-shadow(0 0 9px var(--realm-halo))}
+.enemy-art:has(.foe-pair){width:min(100%,330px);height:185px;border-radius:22px}
+.enemy-art:has(.foe-pair) .foe{position:relative;z-index:1}
+.encounter .challenge{border-left:3px solid var(--realm-accent);border-radius:0 9px 9px 0;background:linear-gradient(90deg,#28475b,#173045);color:#fff1d9!important;font-weight:700;line-height:1.5}
+.log{color:#f4d49a!important}
+.item-reveal,.shop-reveal,.final-card,.prep-stat,.prep-player,.allocation-card,.mini-game,.thread-choice{border-radius:10px;background:linear-gradient(145deg,#223d50,#162b3e);border-color:#9ab5a67f;box-shadow:inset 0 1px #e5f4dc17}
+.item-reveal.curse{border-color:#d08fa387;background:linear-gradient(145deg,#4a334d,#2a2940)}
+.battle-die{border-radius:13px;box-shadow:inset -5px -5px #a87759,0 9px 20px #030b17,0 0 25px #ffdc8e55}
+.shop-wallet,.shop-chest{border-radius:10px;background:linear-gradient(145deg,#28485b,#163042)}
+.shop-chest:hover:not(:disabled){box-shadow:0 6px 20px var(--realm-halo)}
+.final-card.winner{background:linear-gradient(145deg,#36575a,#21394c);border-color:#e5c98b}
+
+@media(max-width:700px){
+  .donjon-lobby-card{min-height:0;padding:clamp(270px,67vw,380px) 22px 26px;background:linear-gradient(180deg,transparent 0 31%,#0d1b2be3 49%,#0c1929 69%),url("assets/donjon-duo-portal.jpg") center 0/100% auto no-repeat,#0c1929}
+  .donjon-lobby-card h2{margin-top:8px}
+  .setup{margin-top:1vh}
+  .stage{min-height:570px}
+  .choice-zone{inset:23% 4% 31%;gap:4px}
+  .stage-caption{left:3%;right:3%;bottom:3%}
+}
+@media(max-width:480px){
+  .app{padding-inline:max(9px,env(safe-area-inset-left)) max(9px,env(safe-area-inset-right))}
+  .topbar{margin-bottom:10px}
+  .topbar h1{font-size:25px}
+  .top-actions .small-button{font-size:9px}
+  .donjon-lobby-card{padding-top:clamp(235px,65vw,320px)}
+  .donjon-role-grid button{min-height:76px}
+  .setup{padding:22px 16px}
+  .intro-scene,.setup:has(.intro-scene) .intro-scene{height:clamp(255px,72vw,340px)}
+  .intro-companions{gap:7px}
+  .hud{gap:6px}
+  .player-card{padding:8px}
+  .hud-top strong{font-size:15px}
+  .stage{min-height:540px}
+  .choice-zone{inset:24% 3% 32%}
+  .stage-caption{padding:11px 13px}
+  .stage-caption h2{font-size:22px}
+  .stage-caption p{font-size:10px}
+  .overlay{padding:8px}
+  .encounter,.encounter.monster-scene{padding:16px 13px}
+  .monster-scene .enemy-art,.enemy-art,.enemy-art.is-boss{width:142px;height:142px}
+  .enemy-art:has(.foe-pair){height:125px}
+  .encounter h2{font-size:27px}
+  .encounter .challenge{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){.small-button,.alt-button,.main-button,.weapon-choice,.donjon-role-grid button{transition:none}}
+
+/* Painted cutouts replace the temporary schematic creature drawings. */
+.painted-monster{display:block;flex:none;overflow:hidden;image-rendering:auto;filter:drop-shadow(0 8px 8px #071422a6);animation-timing-function:ease-in-out!important}
+.foe-pair .painted-monster{width:125px;height:125px;max-width:100%}
+.enemy-art:has(.foe-pair){height:205px}
+.illustrated-weapon,.illustrated-item,.illustrated-chest{image-rendering:auto;shape-rendering:geometricPrecision;filter:drop-shadow(0 4px 5px #06152188)}
+.weapon-choice .illustrated-weapon{width:52px;height:52px}
+.challenge-art .illustrated-item{width:48px;height:48px}
+@media(max-width:600px){.foe-pair .painted-monster{width:min(29vw,124px);height:min(29vw,124px)}.enemy-art:has(.foe-pair){width:min(100%,340px);height:185px}.foe-pair{gap:7px}}
+@media(max-width:400px){.foe-pair .painted-monster{width:102px;height:102px}.enemy-art:has(.foe-pair){height:160px}.stage-caption{bottom:2%;padding:10px}.stage-caption h2{font-size:21px}.stage-caption p{font-size:9px}.choice-zone{inset:26% 2% 31%}.choice-zone .door{min-width:0}}
+
+/* Final ritual: a tactile packet, a public reveal, then deliberate daily choices. */
+.booster-view{width:min(100%,800px);text-align:center;overflow:hidden}
+.booster-view h2{margin:10px auto 4px;font-size:clamp(24px,5vw,39px)}
+.booster-subtitle{max-width:58ch;margin:0 auto 12px!important;color:#d6dfd7!important;font:500 13px/1.5 "Avenir Next",sans-serif}
+.booster-theatre{position:relative;display:grid;place-items:center;height:330px;margin:6px auto 16px;isolation:isolate;perspective:800px}
+.booster-halo{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,#d1b57850 0 9%,#a5c9af23 35%,transparent 70%);filter:blur(9px);animation:ritualBreath 3.5s ease-in-out infinite}
+.booster-theatre::after{content:"";position:absolute;bottom:7px;width:185px;height:22px;border-radius:50%;background:#061622aa;filter:blur(9px)}
+.booster-pack-body,.booster-pack-tear{position:absolute;z-index:4;width:200px;height:300px;background:url("assets/booster-pack.webp") center/contain no-repeat;filter:drop-shadow(0 13px 17px #030b18a8)}
+.booster-pack-body{clip-path:polygon(0 14%,100% 14%,100% 100%,0 100%)}
+.booster-pack-tear{z-index:5;clip-path:polygon(0 0,100% 0,100% 17%,0 17%)}
+.booster-theatre.is-ready .booster-pack-body,.booster-theatre.is-ready .booster-pack-tear{animation:packetHover 3s ease-in-out infinite}
+.booster-theatre.is-opening .booster-pack-body{animation:packetSplit 1.9s ease-in both}
+.booster-theatre.is-opening .booster-pack-tear{animation:tearSeam 1.9s cubic-bezier(.18,.74,.3,1) both}
+.booster-card-backs{position:absolute;z-index:2;inset:0;display:grid;place-items:center}
+.booster-card-backs i{position:absolute;width:104px;height:152px;border:2px solid #dfc48e;border-radius:9px;background:radial-gradient(circle at 50% 38%,#d9c09475,transparent 26%),linear-gradient(145deg,#304b5b,#142b40);box-shadow:inset 0 0 0 5px #142b40,inset 0 0 0 6px #d9c28a77,0 10px 20px #06162199;opacity:0}
+.booster-card-backs i::before{content:"☽";display:grid;place-items:center;height:100%;color:#e8d19b;font-size:55px}
+.booster-theatre.is-opening .booster-card-backs i{animation:cardFan 1.9s cubic-bezier(.22,.75,.24,1) both;--fan:0deg;--slide:0px}
+.booster-theatre.is-opening .booster-card-backs i:first-child{--fan:-18deg;--slide:-70px}
+.booster-theatre.is-opening .booster-card-backs i:last-child{--fan:18deg;--slide:70px}
+.booster-flash{position:absolute;z-index:6;width:15px;height:15px;border-radius:50%;opacity:0;pointer-events:none;background:#fff2d1;box-shadow:0 0 18px 10px #f6dba5,0 0 70px 40px #b9d7bd,0 0 120px 65px #9eb2d088}
+.booster-theatre.is-opening .booster-flash{animation:sealFlash 1.9s ease-out both}
+.booster-shards{position:absolute;z-index:7;inset:0;pointer-events:none}
+.booster-shards i{position:absolute;top:24%;left:50%;width:7px;height:17px;clip-path:polygon(0 0,100% 20%,62% 100%);background:#dec990;opacity:0;transform:rotate(var(--angle))}
+.booster-theatre.is-opening .booster-shards i{animation:shardFly 1.9s ease-out both;animation-delay:calc(var(--shard)*18ms)}
+.booster-reveal-grid,.booster-hand{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:18px 0;text-align:left}
+.booster-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-width:0;min-height:248px;padding:12px;border:1px solid #a8bfa788;border-radius:12px;background:radial-gradient(circle at 50% 18%,#b7cfa02e,transparent 50%),linear-gradient(150deg,#325366ee,#193245f5);box-shadow:inset 0 0 0 4px #11283caa,inset 0 1px #fff3db55,0 10px 21px #06172488;color:#fff1db;text-align:left;overflow:hidden;overflow-wrap:anywhere}
+.booster-reveal-grid .booster-card{animation:cardReveal .72s cubic-bezier(.17,.8,.23,1) both;animation-delay:calc(var(--card-index)*170ms)}
+.booster-card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 20%,#fff8d12e 45%,transparent 60%);transform:translateX(-160%)}
+.booster-reveal-grid .booster-card::after{animation:cardSheen 1.3s ease-out both;animation-delay:calc(var(--card-index)*170ms + 350ms)}
+.booster-card.rarity-rare{border-color:#a9b4d1;background:radial-gradient(circle at 50% 19%,#bbc4e755,transparent 52%),linear-gradient(150deg,#424d70,#252b4d)}
+.booster-card.rarity-legendary{border-color:#efcf91;background:radial-gradient(circle at 50% 18%,#f1d49b6b,transparent 49%),linear-gradient(150deg,#655046,#293c4a);box-shadow:inset 0 0 0 4px #392c2a88,inset 0 1px #fff3dbaa,0 10px 22px #061724bb,0 0 22px #e8c88766}
+.booster-card-rarity,.booster-card-kind,.final-day-rarity{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#e6d2a7}
+.booster-card.rarity-rare .booster-card-rarity,.rarity-rare .final-day-rarity{color:#c9c7e4}
+.booster-card.rarity-legendary .booster-card-rarity,.rarity-legendary .final-day-rarity{color:#ffe0a1}
+.booster-card-art{align-self:center;display:grid;place-items:center;height:81px;margin:5px 0}
+.booster-card-art .item-pixel{width:76px;height:76px;filter:drop-shadow(0 6px 7px #08172599)}
+.booster-card b{font-size:14px;line-height:1.2;margin:3px 0 6px}
+.booster-card small{font-size:11px;line-height:1.34;color:#e4e7da}
+.booster-card-kind{margin-top:auto;padding-top:10px;color:#c4d8cf;font-size:9px}
+.booster-hand .booster-card{cursor:pointer;min-height:220px;width:100%}
+.booster-hand .booster-card.selected{outline:3px solid #f0d598;outline-offset:2px;transform:translateY(-6px)}
+.booster-empty{display:grid;place-items:center;min-height:170px;color:#ddc997}
+.booster-empty span{font:80px/1 Georgia,serif;opacity:.75}.booster-empty p{max-width:28ch;margin:0 auto;color:#d5ded5}
+.day-slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:17px 0 20px;text-align:left}
+.day-slot{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;min-height:144px;padding:11px;border:1px dashed #abc3b6aa;border-radius:10px;background:#173045af;color:#d7e4d9;text-align:left;overflow-wrap:anywhere}
+.day-slot span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#d2c39d}.day-slot b{font-size:12px;line-height:1.24}.day-slot small{font-size:10px;line-height:1.3}
+.day-slot.rarity-rare{border-color:#b6aed0;color:#e3dff3}.day-slot.rarity-legendary{border-color:#e7c884;color:#f9e4bd;background:#5347398a}
+.day-slot.can-place{border-style:solid;box-shadow:0 0 0 2px #f1dd9c55,0 0 18px #e8c48866;cursor:pointer}
+.deck-build-view h3{margin:12px 0 6px;text-align:left;color:#e9d19e;font-size:16px}
+.booster-no-cards{text-align:left;color:#bfcfca}
+.final-day-list{display:grid;gap:8px;margin-top:11px}.final-day-card{position:relative;min-height:65px;padding:8px 10px;border:1px solid #93b4a387;border-radius:7px;background:#152e3bd0;text-align:left}.final-day-card.rarity-rare{border-color:#aaaac9}.final-day-card.rarity-legendary{border-color:#dfc381;background:#3d3a39b8}.final-day-card .empty{margin:7px 0 0}.final-day-content{display:flex;align-items:center;gap:8px;margin-top:4px}.final-day-content .item-pixel{width:38px;height:38px}.final-day-content b,.final-day-content small{display:block}.final-day-content b{font-size:12px}.final-day-content small{margin-top:2px;color:#d9ded4;font-size:11px;line-height:1.3}.final-day-card .erase-item{position:absolute;right:7px;top:6px}
+@keyframes ritualBreath{50%{transform:scale(1.14);opacity:.63}}@keyframes packetHover{50%{transform:translateY(-5px)}}
+@keyframes tearSeam{0%,21%{transform:translate(0,0) rotate(0)}29%{transform:translate(5px,-3px) rotate(2deg)}43%{transform:translate(-7px,-9px) rotate(-5deg)}61%{transform:translate(35px,-55px) rotate(15deg);opacity:1}100%{transform:translate(130px,-115px) rotate(55deg);opacity:0}}
+@keyframes packetSplit{0%,34%{transform:translateY(0) scale(1);opacity:1}60%{transform:translateY(24px) scaleX(1.05);opacity:1}85%{transform:translateY(65px) scale(.82);opacity:.55}100%{transform:translateY(100px) scale(.65);opacity:0}}
+@keyframes cardFan{0%,40%{opacity:0;transform:translateY(30px) scale(.45) rotate(0)}65%{opacity:1;transform:translateY(-45px) scale(.85) rotate(0)}100%{opacity:1;transform:translate(var(--slide),-40px) scale(1) rotate(var(--fan))}}
+@keyframes sealFlash{0%,36%{opacity:0;transform:scale(.2)}45%{opacity:1;transform:scale(1)}70%{opacity:.35;transform:scale(5)}100%{opacity:0;transform:scale(7)}}
+@keyframes shardFly{0%,34%{opacity:0;transform:translate(0,0) rotate(var(--angle)) scale(.3)}47%{opacity:1}100%{opacity:0;transform:translate(var(--shard-x),var(--shard-y)) rotate(var(--angle)) scale(1)}}
+@keyframes cardReveal{0%{opacity:0;transform:translateY(35px) rotateY(88deg) scale(.8)}65%{opacity:1;transform:translateY(-8px) rotateY(0) scale(1.03)}100%{opacity:1;transform:translateY(0) rotateY(0) scale(1)}}
+@keyframes cardSheen{to{transform:translateX(160%)}}
+@media(max-width:700px){.day-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.booster-reveal-grid,.booster-hand{grid-template-columns:repeat(2,minmax(0,1fr))}.booster-card{min-height:240px}}
+@media(max-width:400px){.booster-theatre{height:270px}.booster-pack-body,.booster-pack-tear{width:165px;height:247px}.booster-view{padding:13px!important}.booster-card{padding:9px;min-height:234px}.booster-card b{font-size:12px}.booster-card small{font-size:10px}.booster-card-art{height:66px}.booster-card-art .item-pixel{width:60px;height:60px}.day-slot{min-height:125px;padding:8px}.day-slot b{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.booster-halo,.booster-theatre.is-ready .booster-pack-body,.booster-theatre.is-ready .booster-pack-tear,.booster-theatre.is-opening .booster-pack-body,.booster-theatre.is-opening .booster-pack-tear,.booster-theatre.is-opening .booster-card-backs i,.booster-theatre.is-opening .booster-flash,.booster-theatre.is-opening .booster-shards i,.booster-reveal-grid .booster-card,.booster-reveal-grid .booster-card::after{animation:none!important}.booster-reveal-grid .booster-card{opacity:1;transform:none}}
+
+/* The illustrated atlases share one quiet, mineral treatment at every scale. */
+.painted-weapon,.painted-chest,.painted-potion{display:block;flex:none;background-repeat:no-repeat;image-rendering:auto}
+.painted-weapon{width:48px;height:48px;background-image:url("assets/equipment.webp");background-size:300% 200%;background-position:var(--atlas-x) var(--atlas-y);filter:drop-shadow(0 5px 6px #0613229c)}
+.painted-chest{width:100%;height:100%;background-image:url("assets/equipment.webp");background-size:300% 200%;background-position:var(--atlas-x) var(--atlas-y);filter:drop-shadow(0 7px 9px #061322a6)}
+.painted-potion{width:48px;height:48px;background-image:url("assets/potions.png");background-size:200% 200%;background-position:var(--atlas-x) var(--atlas-y);filter:drop-shadow(0 4px 6px #061322a6)}
+.prep-weapon-icon .painted-weapon,.duo-weapon .painted-weapon{width:30px;height:30px}
+.final-weapon .painted-weapon{width:42px;height:42px}
+
+/* A recessed door-plate is the knock action; tapping the illustrated leaf opens it. */
+.choice-zone .door-portal{position:relative;display:grid;place-items:end center;flex:1 1 0;min-width:0;max-width:190px;align-self:end}
+.choice-zone .door-portal .door{display:block;width:100%;max-width:none;min-width:0;height:auto;min-height:0;aspect-ratio:120/170;padding:0;background:transparent}
+.choice-zone .door-portal .door-art{width:100%;height:100%;object-fit:contain}
+.choice-zone .door-portal .door-knocker{position:absolute;z-index:5;left:50%;bottom:11%;display:flex;align-items:center;justify-content:center;gap:4px;min-width:65px;min-height:27px;padding:2px 7px;transform:translateX(-50%);border:1px solid #d5c1928c;border-radius:99px;background:linear-gradient(145deg,#1c3039dc,#0a1a2ae8);box-shadow:inset 0 1px #fff2ce40,0 3px 8px #050b19a6;color:#e8d7ad;font:800 8px/1 "Avenir Next",Avenir,sans-serif;letter-spacing:.07em;white-space:nowrap;backdrop-filter:blur(6px)}
+.choice-zone .door-portal .door-knocker span{display:grid;place-items:center;width:15px;height:15px;border:1px solid #dec89288;border-radius:50%;font-size:9px;line-height:1}
+.choice-zone .door-portal .door-knocker:hover,.choice-zone .door-portal .door-knocker:focus-visible{background:#284656f0;border-color:#f3dcaa;color:#fff1ca;box-shadow:0 0 11px #c3d2b88c}
+.choice-zone .door-portal .door-knocker:active{transform:translateX(-50%) scale(.94)}
+.choice-zone .door-portal .painted-door{filter:drop-shadow(0 7px 10px #071421ab)}
+.choice-zone .door-portal .door.probed .door-leaf{transform:perspective(450px) rotateY(-18deg);filter:brightness(.54)}
+
+/* The card turns into a contained rarity seal, never covering neighbouring slots. */
+.day-slot{position:relative;overflow:hidden;isolation:isolate}
+.day-slot>*{position:relative;z-index:2}
+.day-slot.just-placed{--slot-glow:#d7d9bd;animation:slotLand .95s cubic-bezier(.18,.8,.2,1) both;border-style:solid}
+.day-slot.just-placed.rarity-rare{--slot-glow:#c5bedf}
+.day-slot.just-placed.rarity-legendary{--slot-glow:#f0d08e}
+.day-slot.just-placed::before{content:"✦";position:absolute;z-index:1;inset:0;display:grid;place-items:center;color:var(--slot-glow);font:70px/1 Georgia,serif;opacity:0;text-shadow:0 0 10px var(--slot-glow);animation:slotSigil .95s ease-out both;pointer-events:none}
+.day-slot.just-placed::after{content:"";position:absolute;z-index:3;inset:-10%;background:linear-gradient(110deg,transparent 25%,#fff8d68c 48%,transparent 62%);transform:translateX(-130%);animation:slotSheen .95s ease-out both;pointer-events:none}
+.day-slot.just-placed b,.day-slot.just-placed small{animation:slotText .8s cubic-bezier(.16,.8,.26,1) both}
+@keyframes slotLand{0%{transform:translateY(-12px) rotateX(65deg) scale(.89);box-shadow:0 0 0 var(--slot-glow)}55%{transform:translateY(2px) rotateX(0) scale(1.025);box-shadow:0 0 28px var(--slot-glow)}100%{transform:none;box-shadow:inset 0 0 18px color-mix(in srgb,var(--slot-glow) 30%,transparent),0 0 9px color-mix(in srgb,var(--slot-glow) 30%,transparent)}}
+@keyframes slotSigil{0%,17%{opacity:0;transform:scale(.2) rotate(-42deg)}45%{opacity:.67;transform:scale(1) rotate(0)}100%{opacity:0;transform:scale(1.7) rotate(32deg)}}
+@keyframes slotSheen{35%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+@keyframes slotText{0%,35%{opacity:0;transform:translateY(16px) rotateX(70deg)}100%{opacity:1;transform:none}}
+@media(max-width:480px){.choice-zone .door-portal .door-knocker{min-width:49px;min-height:24px;padding:2px 4px;font-size:6px;gap:2px}.choice-zone .door-portal .door-knocker span{width:13px;height:13px;font-size:8px}.day-slot.just-placed::before{font-size:52px}}
+@media(prefers-reduced-motion:reduce){.day-slot.just-placed,.day-slot.just-placed::before,.day-slot.just-placed::after,.day-slot.just-placed b,.day-slot.just-placed small{animation:none!important}.day-slot.just-placed::before,.day-slot.just-placed::after{display:none}}
+
+/* A circular mineral astrolabe replaces the boxy slot-machine reels. */
+.setup .oracle-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(100%,510px);margin:20px auto 12px;padding:20px 15px 22px;border:1px solid #b8bea482;border-radius:22px;background:radial-gradient(circle at 50% 38%,#738f9e2d,transparent 60%),linear-gradient(150deg,#263e52cf,#101f32e0);box-shadow:inset 0 1px #faf0d53b,inset 0 0 0 6px #04132142,0 14px 36px #030b19a3;backdrop-filter:blur(14px)}
+.oracle-kicker{color:#d4ceaf;font:800 10px/1.2 "Avenir Next",Avenir,sans-serif;letter-spacing:.18em;text-align:center}
+.oracle-stage{position:relative;display:grid;place-items:center;width:min(67vw,305px);height:min(67vw,305px);min-width:200px;min-height:200px;isolation:isolate}
+.oracle-stage::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid #d3c89b7a;box-shadow:0 0 0 5px #1b3443,0 0 0 7px #adad9777,inset 0 0 15px #070d1da6,0 0 32px #b7c3aa2b;background:radial-gradient(circle,#1a3448 0 28%,transparent 29% 31%,#69808d32 32% 35%,transparent 36% 62%,#d1c28d38 63% 64%,transparent 65%),conic-gradient(from -18deg,#607884,#8b8d80,#546e7e,#a59b82,#627c83,#8e9d96,#607884)}
+.oracle-stage::after{content:"";position:absolute;z-index:1;inset:13%;border:1px solid #d5cba870;border-radius:50%;box-shadow:inset 0 0 0 1px #183145,inset 0 0 20px #d6cda536;pointer-events:none}
+.oracle-wheel{position:absolute;z-index:2;inset:0;border-radius:50%;transition:transform 2.7s cubic-bezier(.13,.66,.12,1);will-change:transform}
+.oracle-wheel::before{content:"";position:absolute;inset:2%;border-radius:50%;border:1px dashed #ede1ba78;pointer-events:none}
+.oracle-sign{position:absolute;display:grid;place-items:center;width:34px;height:34px;transform:translate(-50%,-50%);border:1px solid #d9cca891;border-radius:50%;background:linear-gradient(145deg,#2f5060,#172c40);box-shadow:inset 0 1px #e8dfbc50,0 3px 7px #061322a6;color:#d9dccb}
+.oracle-sign:nth-child(2n){color:#dac8ad}.oracle-sign:nth-child(3n){color:#bfcfd0}
+.oracle-sign svg{width:19px;height:19px}
+.oracle-pointer{position:absolute;z-index:6;top:-9px;left:50%;width:24px;height:29px;transform:translateX(-50%);clip-path:polygon(50% 100%,0 0,100% 0);background:linear-gradient(90deg,#c5a77a,#fff2bd,#b88b61);filter:drop-shadow(0 2px 5px #061421)}
+.oracle-heart{position:relative;z-index:3;display:grid;place-items:center;width:29%;height:29%;border:1px solid #dfcc9d;border-radius:50%;background:radial-gradient(circle at 50% 38%,#647c80,#223a4d 68%,#132539);box-shadow:inset 0 0 0 4px #cdbd8a35,0 0 18px #d8d0ae60;color:#f6e7be;font:clamp(40px,9vw,58px)/1 Georgia,serif;text-shadow:0 0 15px #f2e4ad}
+.oracle-outcome{display:grid;gap:2px;min-height:43px;margin:0!important;color:#d5dfd8!important;text-align:center;font:600 12px/1.3 "Avenir Next",Avenir,sans-serif}
+.oracle-outcome b{color:#fff0ce;font:700 clamp(17px,3vw,24px)/1.1 Georgia,serif;font-variant:small-caps;letter-spacing:.035em}
+.oracle-outcome span{color:#c9d8d2}
+.oracle-wrap #spinWheel{min-width:210px;min-height:42px;padding:8px 16px;border:1px solid #dacb9e;border-radius:10px;background:linear-gradient(145deg,#315663,#172e43);box-shadow:inset 0 1px #fff3cb4d,0 5px 12px #061220a8;color:#f4e4bc;font:800 11px/1.2 "Avenir Next",Avenir,sans-serif;letter-spacing:.06em}
+.oracle-wrap.is-spinning .oracle-heart{animation:oraclePulse .8s ease-in-out infinite alternate}
+@keyframes oraclePulse{to{box-shadow:inset 0 0 0 4px #e2d19d66,0 0 36px #e3d49e99;transform:scale(1.08)}}
+
+/* Closed-door omen: only a faint mineral vapour beneath the threshold. */
+.choice-zone .door-portal{height:clamp(158px,39vw,267px);align-items:end}
+.choice-zone .door-portal .door{width:auto;height:100%;max-width:100%;aspect-ratio:120/170;align-self:end}
+.choice-zone .door-portal::after{content:"";position:absolute;z-index:0;left:8%;right:8%;bottom:0;height:3px;border-radius:50%;background:#b8c4b860;box-shadow:0 0 10px #cbd3b161;pointer-events:none}
+.choice-zone .door-portal .door-omen{position:absolute;z-index:4;left:16%;right:16%;top:auto;bottom:2%;width:auto;height:17%;border:0;border-radius:50%;background:radial-gradient(ellipse at 50% 80%,var(--omen),transparent 70%);box-shadow:none;filter:blur(5px);opacity:.56;animation:omenBreathe 2.1s ease-in-out infinite alternate}
+.choice-zone .door-portal .door-omen i{position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse,var(--omen),transparent 70%);filter:blur(9px);opacity:.52;animation:none}
+.choice-zone .door-portal .door-omen::before,.choice-zone .door-portal .door-omen::after{display:none}
+.choice-zone .door-portal .door.probed .door-leaf{transform:none;filter:none}
+.choice-zone .door-portal .door.probed .door-art{filter:drop-shadow(0 7px 10px #071421ab)}
+@keyframes omenBreathe{to{opacity:.28;transform:translateY(-5px) scaleX(1.12)}}
+.painted-door .door-leaf{transform-box:view-box;transform-origin:105px 270px;backface-visibility:hidden}
+.painted-door .door-light-gap{opacity:0;filter:drop-shadow(0 0 15px #fff1bc)}
+.choice-zone .door.opening .door-leaf{animation:paintedDoorSwing .92s cubic-bezier(.18,.65,.2,1) forwards}
+.choice-zone .door.opening .door-light-gap{animation:paintedDoorLight .92s ease-out both}
+.choice-zone .door-portal:has(.door.opening)::before{content:"";position:absolute;z-index:0;left:-12%;right:-12%;bottom:2%;height:80%;background:radial-gradient(ellipse at 50% 65%,#fff0b982,#c9d8b743 35%,transparent 69%);mix-blend-mode:screen;pointer-events:none;animation:thresholdBloom .92s ease-out both}
+.stage.is-opening::before{animation:thresholdPassSmooth .92s ease-in both;background:radial-gradient(ellipse at 50% 56%,#f1dfb7a8,transparent 72%)}
+@keyframes paintedDoorSwing{0%,16%{transform:perspective(520px) rotateY(0);filter:brightness(1)}58%{transform:perspective(520px) rotateY(-46deg);filter:brightness(.86)}100%{transform:perspective(520px) rotateY(-82deg);filter:brightness(.45)}}
+@keyframes paintedDoorLight{0%,11%{opacity:0}42%{opacity:.95}100%{opacity:1}}
+@keyframes thresholdBloom{0%,13%{opacity:0;transform:scale(.55)}55%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.38)}}
+@keyframes thresholdPassSmooth{0%,50%{opacity:0;transform:scale(.9)}100%{opacity:.7;transform:scale(1.18)}}
+
+/* Shared glass language for the remaining screens and readable compact icons. */
+.setup,.player-card,.encounter,.stage-caption,.final-card,.item-reveal,.prep-stat,.prep-player{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.setup{border:1px solid #c4b99492;border-radius:18px;background:linear-gradient(155deg,#223b4ede,#101f32ee);box-shadow:inset 0 1px #fff0cf3d,0 18px 48px #030a18ad}
+.weapon-choice,.main-button,.alt-button,.small-button{border-radius:10px;box-shadow:inset 0 1px #fff1d137,0 5px 14px #04101d8c}
+.weapon-choice{border:1px solid #a9bdae8a;background:linear-gradient(145deg,#24445be0,#172d41dd)}
+.weapon-choice[aria-pressed="true"]{border-color:#f1dca6;background:linear-gradient(145deg,#3b5a68,#203a50);box-shadow:inset 0 0 0 1px #f5d69a55,0 0 17px #c6caaa55}
+.main-button{border:1px solid #eed3a2;background:linear-gradient(145deg,#f5dfb4,#c7a97a);color:#12293a}
+.alt-button,.small-button{border:1px solid #a8bcae91;background:linear-gradient(145deg,#315263cf,#1c3347e6);color:#f0e2c2}
+.hud-details{gap:12px}
+.room-count,.detour-count{display:inline-flex;align-items:center;gap:3px}
+.room-count svg,.detour-count svg{width:13px;height:13px;flex:none;color:#d6c79f}
+.hud-inventory .inventory-chip{display:inline-flex;align-items:center;gap:3px;color:#cad9d2}
+.hud-inventory .inventory-chip svg{width:17px;height:17px;color:#d2c89f}
+.hud-inventory .inventory-chip.booster svg{color:#cdb8d7}
+.hud-inventory .inventory-chip.potion svg{color:#a7cabb}
+.health .heart-icon{filter:drop-shadow(0 0 4px #de918e55)}
+.stage-caption{padding:13px 17px}
+.stage-caption h2{font-size:clamp(21px,3.5vw,30px)}
+.stage-caption p:not(:empty){max-width:62ch;margin:5px auto 0;font-size:12px;line-height:1.36}
+@media(max-width:600px){.oracle-stage{width:min(69vw,270px);height:min(69vw,270px)}.oracle-sign{width:29px;height:29px}.oracle-sign svg{width:16px;height:16px}.choice-zone .door-portal{height:clamp(158px,39vw,222px)}.stage-caption{padding:11px 12px}.stage-caption p:not(:empty){font-size:11px}}
+@media(max-width:390px){.choice-zone{left:2%;right:2%;gap:2px}.choice-zone .door-portal{height:155px}.choice-zone .door-portal .door-knocker{bottom:9%}.stage-caption h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.oracle-wheel{transition:none}.oracle-wrap.is-spinning .oracle-heart,.choice-zone .door-portal .door-omen,.choice-zone .door.opening .door-leaf,.choice-zone .door.opening .door-light-gap,.choice-zone .door-portal:has(.door.opening)::before,.stage.is-opening::before{animation:none!important}}
