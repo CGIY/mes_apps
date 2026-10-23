@@ -29,6 +29,7 @@ const nodes = {
   choiceZone:{querySelectorAll:() => [door(),door(),door()]}
 };
 const sandbox = {
+  Math:Object.create(Math),
   document:{getElementById:id => nodes[id] || {classList}},
   window:{matchMedia:() => ({matches:true}),donjonLive:{role:'J1'}},
   setTimeout:fn => {fn();return 1},clearTimeout(){},
@@ -101,15 +102,43 @@ for (const zone of a.wheelSegments) {
 reset('castle');
 let empty=0,full=0,curse=0;
 for (let i=0;i<1000;i++) {
-  const cards=a.drawBoosterCards({id:i+1,source:i%4?'combat':'boss'},i%2);
+  const source=['combat','boss','pink','wardrobe'][i%4];
+  const cards=a.drawBoosterCards({id:i+1,source},i%2);
   assert(cards.length>=0 && cards.length<=5,'booster: zero to five cards');
   assert(cards.every(card => ['common','rare','legendary'].includes(card.rarity)));
   assert(cards.every(card => ['outfit','pink','relic','curse'].includes(card.kind)));
+  assert(cards.every(card => card.rarity==='common'
+    ? card.kind==='relic'||card.kind==='curse'&&card.category!=='purchase'
+    : card.rarity==='rare'
+      ? card.kind==='outfit'
+      : card.kind==='pink'||card.kind==='curse'&&card.category==='purchase'),
+    'card contents match their rarity catalogue');
+  const legendary=cards.filter(card => card.rarity==='legendary');
+  if(cards.length>=4)assert.equal(legendary.length,1,'large booster guarantees exactly one legendary');
+  else assert(legendary.length<=1,'small booster has at most one legendary');
+  if(source==='pink')assert(legendary.every(card => card.kind==='pink'),'pink booster legend is a pink-chest card');
   if(!cards.length)empty++;
   if(cards.length===5)full++;
   curse+=cards.filter(card => card.kind==='curse').length;
 }
 assert(empty>0 && full>0 && curse>0,'all booster outcomes can occur');
+for (const [source,rolls] of [
+  ['combat',[.01,.2,.5,.7,.9,.99]],
+  ['boss',[.01,.1,.3,.5,.8,.95]]
+]) {
+  for(let count=0;count<=5;count++){
+    for(const legendaryChance of [0,.99]){
+      const sequence=[rolls[count],legendaryChance,0];
+      sandbox.Math.random=()=>sequence.length?sequence.shift():.5;
+      const cards=a.drawBoosterCards({id:2000+count,source},0);
+      assert.equal(cards.length,count,`${source}: exact pack size ${count}`);
+      assert.equal(cards.filter(card=>card.rarity==='legendary').length,
+        count>=4||count>0&&legendaryChance===0?1:0,
+        `${source}: legendary guarantee and small-pack odds`);
+    }
+  }
+}
+sandbox.Math.random=Math.random;
 assert.equal(a.slotRarities.join(','),'common,common,rare,legendary');
 assert(a.monsterHearts(1,1).includes('Monstre : 1 point de vie sur 1'));
 a.state.phase='deck-build';a.state.deckTurn=0;

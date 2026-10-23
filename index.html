@@ -936,19 +936,26 @@ html[data-donjon-role="J1"] .duo-secret-j2,html[data-donjon-role="J2"] .duo-secr
   }
   const rarityLabel={common:'Normale',rare:'Rare',legendary:'Légendaire'};
   const slotRarities=['common','common','rare','legendary'];
+  const boosterCatalogues={
+    common:{relic:relicDeck,curse:curseDeck.filter(item=>item.category!=='purchase')},
+    rare:{outfit:outfitDecks},
+    legendary:{pink:pinkDecks,curse:curseDeck.filter(item=>item.category==='purchase')}
+  };
   function drawBoosterCards(booster,index){
     const royal=booster.source==='boss',roll=Math.random(),cuts=royal?[.08,.20,.42,.70,.90,1]:[.14,.39,.67,.85,.96,1];
     const count=cuts.findIndex(cut=>roll<cut),cards=[];
+    // Four or five cards guarantee exactly one legendary; smaller packs stay uncertain.
+    const legendaryChance=count>0&&count<4&&Math.random()<count*(royal?.08:.05);
+    const legendaryIndex=count>=4||legendaryChance?random(count):-1;
     const used=new Set(state.players.flatMap(p=>[...(p.hand||[]),...(p.slots||[])].filter(Boolean).map(card=>card.name)));
     for(let i=0;i<count;i++){
-      const rareRoll=Math.random(),rarity=rareRoll<(royal?.43:.63)?'common':rareRoll<(royal?.84:.91)?'rare':'legendary';
-      const kinds=booster.source==='pink'?['pink','pink','outfit','curse']:booster.source==='wardrobe'?['outfit','outfit','relic','pink']:rarity==='legendary'?['pink','curse','outfit']:rarity==='rare'?['relic','outfit','pink','curse']:['relic','relic','outfit','curse'];
-      const kind=pick(kinds);
-      let deck=kind==='pink'?pinkDecks[index===0?'agathe':'clement']:kind==='outfit'?outfitDecks[index===0?'agathe':'clement']:kind==='curse'?curseDeck:relicDeck;
-      if(kind==='curse')deck=deck.filter(item=>rarity==='legendary'?item.category==='purchase':rarity==='common'?item.category!=='purchase':true);
+      const rarity=i===legendaryIndex?'legendary':Math.random()<(royal?.49:.31)?'rare':'common';
+      const kinds=rarity==='legendary'?(booster.source==='pink'?['pink']:['pink','curse']):rarity==='rare'?['outfit']:['relic','relic','curse'];
+      const kind=pick(kinds),catalogue=boosterCatalogues[rarity];
+      const deck=kind==='pink'||kind==='outfit'?catalogue[kind][index===0?'agathe':'clement']:catalogue[kind];
       const fresh=deck.filter(item=>!used.has(item.name)),pool=fresh.length?fresh:deck;
       if(!pool.length)continue;
-      const selected=kind==='curse'?pickCurse(pool):pick(pool),card={...resolveShopMission(selected,kind),rarity,id:`${booster.id}-${i}`};
+      const selected=pick(pool),card={...resolveShopMission(selected,kind),rarity,id:`${booster.id}-${i}`};
       used.add(card.name);cards.push(card);
     }
     return cards;
